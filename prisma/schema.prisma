@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Link {
+  id          String   @id @default(cuid())
+  url         String
+  platform    String   // youtube | twitter | github | reddit | instagram | article | generic
+  title       String?
+  description String?
+  image       String?
+  favicon     String?
+  siteName    String?
+  // Platform-specific extras stored as JSON
+  extras      Json?
+  // Additional context provided by the user to help AI search
+  aiContext   String?
+  createdAt   DateTime @default(now())
+}

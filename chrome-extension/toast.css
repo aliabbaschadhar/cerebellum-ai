@@ -1,0 +1,44 @@
+w/* Beautiful Toast UI */
+#cerebellum-toast {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+  position: fixed;
+  z-index: 2147483647;
+  left: 50%;
+  bottom: 30px;
+  font-size: 14px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%);
+  opacity: 0;
+  transition:
+    opacity 0.3s,
+    bottom 0.3s,
+    visibility 0.3s;
+}
+
+#cerebellum-toast.show {
+  visibility: visible;
+  opacity: 1;
+  bottom: 50px;
+}
+
+#cerebellum-toast.success {
+  background-color: #10b981;
+}
+
+#cerebellum-toast.error {
+  background-color: #ef4444;
+}
+
+/* Remove the old ugly floating button */
+#cerebellum-save-button {
+  display: none !important;
+}
