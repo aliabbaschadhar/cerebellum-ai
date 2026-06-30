@@ -119,17 +119,19 @@ export default function ChatTab({
   // Effect to handle search query passed from Home tab
   useEffect(() => {
     if (pendingChatQuery) {
-      console.log(`[Chat UI] Detected pending search query: "${pendingChatQuery}". Submitting.`);
+      const query = pendingChatQuery;
+      // Clear the query immediately in parent state to prevent double execution loops
+      clearPendingChatQuery();
+
+      console.log(`[Chat UI] Detected pending search query: "${query}". Submitting.`);
       const runQuery = async () => {
         try {
           await sendMessage(
-            { text: pendingChatQuery },
+            { text: query },
             { body: { sessionId: activeSessionId || "new" } }
           );
         } catch (err) {
           console.error("Failed to send message:", err);
-        } finally {
-          clearPendingChatQuery();
         }
       };
       runQuery();
@@ -194,28 +196,38 @@ export default function ChatTab({
 
   // Helper to extract text content from UIMessage parts
   const getMessageText = (message: any) => {
-    if (!message || !message.parts) return "";
-    return message.parts
-      .filter((part: any) => part.type === "text")
-      .map((part: any) => part.text)
-      .join("");
+    if (!message) return "";
+    if (typeof message.content === "string" && message.content) return message.content;
+    if (Array.isArray(message.parts)) {
+      return message.parts
+        .filter((part: any) => part.type === "text")
+        .map((part: any) => part.text)
+        .join("");
+    }
+    return "";
   };
 
   // Helper to parse message and extract REFERENCES line
   const parseMessage = (content: string) => {
-    const refRegex = /REFERENCES:\s*\[(.*?)\]/;
-    const match = content.match(refRegex);
+    const fullRefRegex = /references:\s*\[(.*?)\]/i;
+    const match = content.match(fullRefRegex);
+
+    let cleanContent = content;
+    let referenceIds: string[] = [];
 
     if (match) {
-      const ids = match[1]
+      referenceIds = match[1]
         .split(",")
         .map((id) => id.trim())
         .filter(Boolean);
-      const cleanContent = content.replace(refRegex, "").trim();
-      return { cleanContent, referenceIds: ids };
+      cleanContent = content.replace(fullRefRegex, "").trim();
     }
 
-    return { cleanContent: content, referenceIds: [] };
+    // Strip any partial references line at the end during streaming
+    const partialRefRegex = /(?:\n\s*|^)references:?\s*\[?[^\]]*$/i;
+    cleanContent = cleanContent.replace(partialRefRegex, "").trim();
+
+    return { cleanContent, referenceIds };
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

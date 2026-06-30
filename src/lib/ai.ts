@@ -9,7 +9,7 @@ export const digitalOceanGenAI = createOpenAI({
 
 // Helper to generate embedding vector from text
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const modelName = process.env.DO_EMBEDDING_MODEL || "mini-lm-l6-v2";
+  const modelName = process.env.DO_EMBEDDING_MODEL || "all-mini-lm-l6-v2";
   const { embedding } = await embed({
     model: digitalOceanGenAI.embedding(modelName),
     value: text,

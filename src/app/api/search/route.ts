@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
     console.log(`\n=== [Search API] Triggered for query: "${query}" ===`);
 
-    const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    const searchUrl = `https://search.yahoo.com/search?q=${encodeURIComponent(query)}`;
     console.log(`[Search API] Fetching from: ${searchUrl}`);
 
     const res = await fetch(searchUrl, {
@@ -22,26 +22,26 @@ export async function POST(req: Request) {
     });
 
     if (!res.ok) {
-      console.error(`[Search API] DuckDuckGo returned status: ${res.status}`);
-      throw new Error(`DuckDuckGo returned status ${res.status}`);
+      console.error(`[Search API] Yahoo Search returned status: ${res.status}`);
+      throw new Error(`Yahoo Search returned status ${res.status}`);
     }
 
     const html = await res.text();
     const $ = cheerio.load(html);
     const results: Array<{ title: string; snippet: string; url: string }> = [];
 
-    $(".result").each((i, el) => {
+    $(".algo").each((i, el) => {
       if (i >= 3) return; // Fetch top 3 results for context efficiency
       
-      const title = $(el).find(".result__title").text().trim();
-      const snippet = $(el).find(".result__snippet").text().trim();
-      const rawUrl = $(el).find(".result__url").attr("href") || "";
+      const title = $(el).find(".title a").text().trim() || $(el).find("h3 a").text().trim();
+      const rawUrl = $(el).find(".title a").attr("href") || $(el).find("h3 a").attr("href") || "";
+      const snippet = $(el).find(".compText").text().trim() || $(el).find(".desc").text().trim();
 
-      // Clean the DuckDuckGo outbound URL
+      // Clean the Yahoo outbound redirect URL
       let url = rawUrl;
-      if (rawUrl.includes("uddg=")) {
+      if (rawUrl.includes("/RU=")) {
         try {
-          const match = rawUrl.match(/uddg=([^&]+)/);
+          const match = rawUrl.match(/\/RU=([^\/]+)/);
           if (match) url = decodeURIComponent(match[1]);
         } catch {}
       }

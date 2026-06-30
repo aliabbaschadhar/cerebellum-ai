@@ -37,11 +37,17 @@ export async function POST(req: Request) {
           ? query.substring(0, 40) + "..."
           : query;
       
-      const session = await prisma.chatSession.create({
-        data: { title: title || "New Chat" },
-      });
-      resolvedSessionId = session.id;
-      console.log(`[Chat API] Created ChatSession: "${session.title}" (ID: ${resolvedSessionId})`);
+      try {
+        const session = await prisma.chatSession.create({
+          data: { title: title || "New Chat" },
+        });
+        resolvedSessionId = session.id;
+        console.log(`[Chat API] Created ChatSession: "${session.title}" (ID: ${resolvedSessionId})`);
+      } catch (err) {
+        console.error("[Chat API] Failed to create ChatSession in database:", err);
+        resolvedSessionId = `offline-${Date.now()}`;
+        console.log(`[Chat API] Using offline fallback session ID: ${resolvedSessionId}`);
+      }
     }
 
     const isSearchContext = query.startsWith("[Internet Search Findings]");
@@ -63,57 +69,67 @@ export async function POST(req: Request) {
       }
     }
 
-    // 3. Generate embedding and perform similarity search (if not search context)
+    // 3. Generate embedding and perform similarity search (if not search context and memories not skipped)
     let vector: number[] = [];
     let matchedLinks: any[] = [];
     let noMemories = false;
+    const skipMemories = process.env.SKIP_MEMORIES === "true";
 
     if (!isSearchContext) {
-      try {
-        console.log("[Chat API] Generating embedding for query...");
-        vector = await generateEmbedding(query);
-        console.log(`[Chat API] Embedding generated successfully (dimensions: ${vector.length})`);
-      } catch (err) {
-        console.error("[Chat API] Embedding generation failed:", err);
-      }
-
-      if (vector.length > 0) {
+      if (skipMemories) {
+        console.log("[Chat API] Skipping memories retrieval logic as configured via SKIP_MEMORIES=true.");
+      } else {
         try {
-          console.log("[Chat API] Querying pgvector database for similarity matches...");
-          const queryVectorString = `[${vector.join(",")}]`;
-
-          // Raw SQL query to fetch closest links by cosine distance
-          matchedLinks = await prisma.$queryRawUnsafe(`
-            SELECT l.id, l.url, l.platform, l.title, l.description, l.image, l.favicon, l."siteName", l."aiContext",
-                   (le.vector <=> CAST($1 AS vector)) as distance
-            FROM "Link" l
-            JOIN "LinkEmbedding" le ON l.id = le."linkId"
-            ORDER BY distance ASC
-            LIMIT 5;
-          `, queryVectorString);
-
-          console.log(`[Chat API] similarity search completed. Retrieved ${matchedLinks.length} items.`);
-          matchedLinks.forEach((m, idx) => {
-            console.log(`  Match #${idx + 1}: "${m.title}" | Platform: ${m.platform} | Distance: ${m.distance}`);
-          });
+          console.log("[Chat API] Generating embedding for query...");
+          vector = await generateEmbedding(query);
+          console.log(`[Chat API] Embedding generated successfully (dimensions: ${vector.length})`);
         } catch (err) {
-          console.error("[Chat API] Similarity search failed:", err);
+          console.error("[Chat API] Embedding generation failed:", err);
         }
-      }
 
-      const totalCount = await prisma.link.count();
-      console.log(`[Chat API] Total links saved in DB: ${totalCount}`);
-      
-      noMemories = totalCount === 0;
+        if (vector.length > 0) {
+          try {
+            console.log("[Chat API] Querying pgvector database for similarity matches...");
+            const queryVectorString = `[${vector.join(",")}]`;
 
-      if (matchedLinks.length > 0) {
-        const closestMatch = matchedLinks[0];
-        if (closestMatch.distance > 0.65) {
-          console.log(`[Chat API] Closest match distance ${closestMatch.distance} exceeds threshold of 0.65. Low relevance detected.`);
+            // Raw SQL query to fetch closest links by cosine distance
+            matchedLinks = await prisma.$queryRawUnsafe(`
+              SELECT l.id, l.url, l.platform, l.title, l.description, l.image, l.favicon, l."siteName", l."aiContext",
+                     (le.vector <=> CAST($1 AS vector)) as distance
+              FROM "Link" l
+              JOIN "LinkEmbedding" le ON l.id = le."linkId"
+              ORDER BY distance ASC
+              LIMIT 5;
+            `, queryVectorString);
+
+            console.log(`[Chat API] similarity search completed. Retrieved ${matchedLinks.length} items.`);
+            matchedLinks.forEach((m, idx) => {
+              console.log(`  Match #${idx + 1}: "${m.title}" | Platform: ${m.platform} | Distance: ${m.distance}`);
+            });
+          } catch (err) {
+            console.error("[Chat API] Similarity search failed:", err);
+          }
+        }
+
+        try {
+          const totalCount = await prisma.link.count();
+          console.log(`[Chat API] Total links saved in DB: ${totalCount}`);
+          
+          noMemories = totalCount === 0;
+
+          if (matchedLinks.length > 0) {
+            const closestMatch = matchedLinks[0];
+            if (closestMatch.distance > 0.85) {
+              console.log(`[Chat API] Closest match distance ${closestMatch.distance} exceeds threshold of 0.85. Low relevance detected.`);
+              noMemories = true;
+            }
+          } else {
+            noMemories = true;
+          }
+        } catch (err) {
+          console.error("[Chat API] Failed to count links or read relevance from DB:", err);
           noMemories = true;
         }
-      } else {
-        noMemories = true;
       }
     }
 
@@ -134,7 +150,10 @@ User Context: ${link.aiContext || ""}`;
       : "No matching memories found in the database.";
 
     // 5. Construct system prompt containing the user's saved links context
-    const systemPrompt = `You are Cerebellum AI, a highly advanced digital brain assistant. 
+    const systemPrompt = skipMemories
+      ? `You are Cerebellum AI, a highly advanced digital brain assistant.
+Answer the user's questions professionally, insightfully, and clearly using your pre-trained knowledge.`
+      : `You are Cerebellum AI, a highly advanced digital brain assistant. 
 The user has saved various links/posts (from platforms like YouTube, Twitter/X, GitHub, Reddit, LinkedIn, and websites) to their Second Brain (Cerebellum).
 Below is a list of the most relevant memories retrieved from their Second Brain database matching their query.
 
@@ -151,13 +170,23 @@ REFERENCES: [id1, id2, ...]
 where id1, id2, etc. are the exact IDs of the matched memories from the context. Do not include this line if no memories were matched.`;
 
     const chatModel = process.env.DO_CHAT_MODEL || "deepseek-4-flash";
-    console.log(`[Chat API] Calling DigitalOcean LLM model: "${chatModel}"`);
+    // Preprocess messages to ensure convertToModelMessages doesn't crash on standard formats
+    const uiMessages = messages.map((m: any) => {
+      if (!m.parts && typeof m.content === "string") {
+        return {
+          ...m,
+          id: m.id || `msg-${Date.now()}-${Math.random()}`,
+          parts: [{ type: "text", text: m.content }]
+        };
+      }
+      return m;
+    });
 
     // 6. Stream text response
     const result = await streamText({
       model: digitalOceanGenAI.chat(chatModel),
       system: systemPrompt,
-      messages: await convertToModelMessages(messages),
+      messages: await convertToModelMessages(uiMessages),
       async onFinish({ text }) {
         console.log(`[Chat API] Stream completed. Saving assistant response to session: ${resolvedSessionId}`);
         try {
@@ -196,7 +225,7 @@ where id1, id2, etc. are the exact IDs of the matched memories from the context.
       headers.set("X-Search-Query", query);
     }
 
-    return result.toTextStreamResponse({ headers });
+    return result.toUIMessageStreamResponse({ headers });
   } catch (err) {
     console.error("[Chat API] Critical error:", err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
