@@ -1,8 +1,17 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
-import AddLinkForm from "@/components/AddLinkForm";
-import LinkCard from "@/components/LinkCard";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useScrollProgress } from "@/lib/useScrollProgress";
+
+// Extracted Sub-sections
+import Hero from "@/components/landing/Hero";
+import Friction from "@/components/landing/Friction";
+import HowItWorks from "@/components/landing/HowItWorks";
+import Features from "@/components/landing/Features";
+import AutoCategorization from "@/components/landing/AutoCategorization";
+import FAQ from "@/components/landing/FAQ";
+import CTA from "@/components/landing/CTA";
 
 export interface LinkData {
   id: string;
@@ -19,189 +28,335 @@ export interface LinkData {
 }
 
 export default function Home() {
-  const [links, setLinks] = useState<LinkData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  // Persistent Dark Mode Theme State
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  async function fetchLinks(showGlobalLoader = true) {
-    if (showGlobalLoader) {
-      setLoading(true);
-    } else {
-      setIsRefreshing(true);
-    }
-    try {
-      const res = await fetch("/api/links");
-      const data = await res.json();
-      setLinks(data);
-    } catch {
-      /* silent */
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  }
+  // Simulated typing state for the mock search bar
+  const [typedText, setTypedText] = useState("");
+  const targetText = "that dopamine video from YouTube...";
 
+  // Initialize theme from localStorage, defaulting to light mode
   useEffect(() => {
-    fetchLinks();
+    const savedTheme = localStorage.getItem("theme");
+    const timer = setTimeout(() => {
+      setIsDarkMode(savedTheme === "dark");
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
-  function handleAdded(link: LinkData) {
-    startTransition(() => {
-      setLinks((prev) => [link, ...prev]);
-    });
-  }
+  // Update theme classes on document changes
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDarkMode]);
 
-  function handleDeleted(id: string) {
-    startTransition(() => {
-      setLinks((prev) => prev.filter((l) => l.id !== id));
-    });
-  }
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      setTypedText(targetText.substring(0, index));
+      index++;
+      if (index > targetText.length) {
+        setTimeout(() => {
+          index = 0;
+        }, 3000); // Pause before re-typing
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
-  const platforms = Array.from(new Set(links.map((l) => l.platform)));
-  const filteredLinks = selectedPlatform
-    ? links.filter((l) => l.platform === selectedPlatform)
-    : links;
+  // Mouse Parallax coordinates (normalized to range [-0.5, 0.5])
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+      setMousePos({ x, y });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+
+  // Scroll Trigger Observers for each section
+  const [showFriction, setShowFriction] = useState(false);
+  const frictionSectionRef = useRef<HTMLDivElement>(null);
+
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const howItWorksSectionRef = useRef<HTMLDivElement>(null);
+
+  const [showFeatures, setShowFeatures] = useState(false);
+  const featuresSectionRef = useRef<HTMLDivElement>(null);
+
+  const [showAutoCategorization, setShowAutoCategorization] = useState(false);
+  const autoCategorizationSectionRef = useRef<HTMLDivElement>(null);
+
+  const [showFAQ, setShowFAQ] = useState(false);
+  const faqSectionRef = useRef<HTMLDivElement>(null);
+
+  const [showCTA, setShowCTA] = useState(false);
+  const ctaSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observerOptions = { threshold: 0.1 };
+
+    const elements = [
+      { ref: frictionSectionRef, set: setShowFriction },
+      { ref: howItWorksSectionRef, set: setShowHowItWorks },
+      { ref: featuresSectionRef, set: setShowFeatures },
+      { ref: autoCategorizationSectionRef, set: setShowAutoCategorization },
+      { ref: faqSectionRef, set: setShowFAQ },
+      { ref: ctaSectionRef, set: setShowCTA },
+    ];
+
+    const activeObservers = elements.map(({ ref, set }) => {
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          set(true);
+        }
+      }, observerOptions);
+
+      const current = ref.current;
+      if (current) observer.observe(current);
+
+      return { observer, current };
+    });
+
+    return () => {
+      activeObservers.forEach(({ observer, current }) => {
+        if (current) observer.unobserve(current);
+      });
+    };
+  }, []);
+
+  // Interactive mockup states
+  const [activeFolder, setActiveFolder] = useState<
+    "Design" | "Research" | "Growth" | "Mindset"
+  >("Growth");
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
+  // Scroll Progress Hooks
+  const { progress: frictionProgress } = useScrollProgress(frictionSectionRef);
+  const { progress: howItWorksProgress, velocity: howItWorksVelocity } =
+    useScrollProgress(howItWorksSectionRef);
+  const { progress: featuresProgress } = useScrollProgress(featuresSectionRef);
+  const { progress: autoCatProgress } = useScrollProgress(
+    autoCategorizationSectionRef,
+  );
+  const { progress: ctaProgress } = useScrollProgress(ctaSectionRef);
+
+  const scrollToFriction = () => {
+    frictionSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  const scrollToHowItWorks = () => {
+    howItWorksSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  const scrollToFeatures = () => {
+    featuresSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  const scrollToFAQ = () => {
+    faqSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  const navigateToApp = () => {
+    router.push("/app");
+  };
 
   return (
-    <div className="min-h-screen bg-[#0c0c0f] text-white relative selection:bg-indigo-500/30">
-      {/* Decorative background glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] opacity-30 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-[#0c0c0f]/0 to-transparent -z-10" />
+    <div className="min-h-screen bg-background text-[#1c1c16] dark:text-[#dddad0] relative overflow-x-hidden selection:bg-[#E36A6A]/20 selection:text-[#a0383b] transition-colors duration-300">
+      
+      {/* 1. Hero / Header Area */}
+      <Hero
+        typedText={typedText}
+        mousePos={mousePos}
+        scrollToFriction={scrollToFriction}
+        scrollToHowItWorks={scrollToHowItWorks}
+        scrollToFeatures={scrollToFeatures}
+        scrollToFAQ={scrollToFAQ}
+        navigateToApp={navigateToApp}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+      />
 
-      {/* Header */}
-      <header className="border-b border-white/[0.06] bg-[#0c0c0f]/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-sm font-bold">
-              C
+      {/* 2. Friction Section */}
+      <Friction
+        showFriction={showFriction}
+        frictionProgress={frictionProgress}
+        sectionRef={frictionSectionRef}
+      />
+
+      {/* 3. How It Works Section */}
+      <HowItWorks
+        showHowItWorks={showHowItWorks}
+        howItWorksProgress={howItWorksProgress}
+        howItWorksVelocity={howItWorksVelocity}
+        sectionRef={howItWorksSectionRef}
+      />
+
+      {/* 4. Features Section */}
+      <Features
+        showFeatures={showFeatures}
+        sectionRef={featuresSectionRef}
+      />
+
+      {/* 5. Auto Categorization Section */}
+      <AutoCategorization
+        showAutoCategorization={showAutoCategorization}
+        activeFolder={activeFolder}
+        setActiveFolder={setActiveFolder}
+        sectionRef={autoCategorizationSectionRef}
+      />
+
+      {/* 6. FAQ Section */}
+      <FAQ
+        showFAQ={showFAQ}
+        expandedFaq={expandedFaq}
+        setExpandedFaq={setExpandedFaq}
+        sectionRef={faqSectionRef}
+      />
+
+      {/* 7. CTA Section */}
+      <CTA
+        showCTA={showCTA}
+        navigateToApp={navigateToApp}
+        sectionRef={ctaSectionRef}
+      />
+
+      {/* Premium Multi-column SaaS Footer */}
+      <footer className="bg-[#f7f3e9] dark:bg-[#151512] text-[#564241] dark:text-[#c7c4ba] py-16 border-t border-[#ddc0be]/30 dark:border-white/5 relative z-10 transition-colors duration-300">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12">
+            {/* Column 1: Brand details */}
+            <div className="lg:col-span-5 flex flex-col items-start gap-4">
+              <div className="flex items-center gap-2.5">
+                <img
+                  src="/logo.jpg"
+                  alt="Cerebellum AI Logo"
+                  className="w-8 h-8 rounded-full object-cover border border-[#ddc0be]/30 dark:border-white/10"
+                />
+                <span className="font-bold text-base text-text-rich dark:text-white tracking-tight">
+                  Cerebellum AI
+                </span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#E36A6A]/10 text-primary dark:text-[#ffb3b1] uppercase tracking-wider">
+                  Second Brain
+                </span>
+              </div>
+              <p className="text-xs font-medium leading-relaxed max-w-sm">
+                Your personal second brain. Automatically collect, transcribe, summarize, 
+                and search your saved bookmarks, articles, YouTube videos, and social posts 
+                using natural language.
+              </p>
             </div>
-            <span className="font-semibold text-lg tracking-tight">
-              Cerebrum
-            </span>
+
+            {/* Column 2: Product */}
+            <div className="lg:col-span-2 flex flex-col gap-3">
+              <h4 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider">Product</h4>
+              <ul className="flex flex-col gap-2.5 text-xs font-semibold">
+                <li>
+                  <button onClick={scrollToFeatures} className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors text-left cursor-pointer">
+                    Features
+                  </button>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    Chrome Extension
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    Safari Extension
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    Pricing Plans
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Resources */}
+            <div className="lg:col-span-2 flex flex-col gap-3">
+              <h4 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider">Resources</h4>
+              <ul className="flex flex-col gap-2.5 text-xs font-semibold">
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    Documentation
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    API Reference
+                  </a>
+                </li>
+                <li>
+                  <button onClick={scrollToFAQ} className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors text-left cursor-pointer">
+                    FAQ Accordion
+                  </button>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    Release Notes
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4: Company */}
+            <div className="lg:col-span-3 flex flex-col gap-3">
+              <h4 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider">Company</h4>
+              <ul className="flex flex-col gap-2.5 text-xs font-semibold">
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    Terms of Service
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                    Discord Community
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-white/30 font-mono">
-              {links.length} saved
-            </span>
-            <button
-              onClick={() => fetchLinks(false)}
-              disabled={isRefreshing || loading}
-              className="p-1.5 rounded-md hover:bg-white/10 transition-colors text-white/50 hover:text-white disabled:opacity-50"
-              title="Refresh links"
-            >
-              <svg
-                className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M3 3v5h5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+
+          <div className="border-t border-[#ddc0be]/30 dark:border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-[11px] font-medium text-[#8a7170] dark:text-[#8a7170]/70">
+              &copy; {new Date().getFullYear()} Cerebellum AI Inc. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4 text-xs font-semibold text-[#8a7170] dark:text-[#8a7170]/70">
+              <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                Twitter
+              </a>
+              <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                GitHub
+              </a>
+              <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                Discord
+              </a>
+            </div>
           </div>
         </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        {/* Hero + URL Input */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold tracking-tight mb-3 bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">
-            Save anything from the web
-          </h1>
-          <p className="text-white/40 text-lg mb-10">
-            Paste a link — YouTube, X, GitHub, Reddit, or any article
-          </p>
-          <AddLinkForm onAdded={handleAdded} />
-        </div>
-
-        {/* Filters */}
-        {!loading && links.length > 0 && (
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-            <button
-              onClick={() => setSelectedPlatform(null)}
-              className={`px-4 py-1.5 rounded-full text-sm transition-all ${
-                selectedPlatform === null
-                  ? "bg-white/10 text-white border border-white/20"
-                  : "bg-transparent text-white/40 hover:text-white/80 hover:bg-white/5 border border-transparent"
-              }`}
-            >
-              All
-            </button>
-            {platforms.map((platform) => (
-              <button
-                key={platform}
-                onClick={() => setSelectedPlatform(platform)}
-                className={`px-4 py-1.5 rounded-full text-sm capitalize transition-all ${
-                  selectedPlatform === platform
-                    ? "bg-white/10 text-white border border-white/20"
-                    : "bg-transparent text-white/40 hover:text-white/80 hover:bg-white/5 border border-transparent"
-                }`}
-              >
-                {platform === "generic" ? "Web" : platform}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Link Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="h-64 rounded-2xl bg-white/[0.04] animate-pulse"
-              />
-            ))}
-          </div>
-        ) : filteredLinks.length === 0 ? (
-          <div className="flex flex-col items-center gap-4 py-24 text-white/20">
-            <svg
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <path
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"
-                strokeLinecap="round"
-              />
-              <path
-                d="M10.172 13.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101"
-                strokeLinecap="round"
-              />
-            </svg>
-            <p className="text-lg font-medium">No links found</p>
-            {links.length > 0 && (
-              <p className="text-sm">Try selecting a different filter</p>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredLinks.map((link) => (
-              <LinkCard
-                key={link.id}
-                link={link}
-                onDeleted={handleDeleted}
-                disabled={isPending}
-              />
-            ))}
-          </div>
-        )}
-      </main>
+      </footer>
     </div>
   );
 }

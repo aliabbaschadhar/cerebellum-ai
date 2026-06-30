@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fetchLinkMetadata } from "@/lib/metadata";
+import { generateEmbedding } from "@/lib/ai";
 
 // GET /api/links — return all saved links, newest first
 export async function GET() {
@@ -47,6 +48,20 @@ export async function POST(req: Request) {
         aiContext: aiContext && typeof aiContext === "string" ? aiContext : undefined,
       },
     });
+
+    // Generate embedding synchronously
+    try {
+      const contentToEmbed = `Title: ${meta.title || "Untitled"}\nDescription: ${meta.description || ""}\nSite: ${meta.siteName || ""}\nPlatform: ${meta.platform}\nContext: ${aiContext || ""}`;
+      const vector = await generateEmbedding(contentToEmbed);
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO "LinkEmbedding" ("id", "linkId", "vector") VALUES ($1, $2, CAST($3 AS vector))`,
+        crypto.randomUUID(),
+        link.id,
+        `[${vector.join(",")}]`
+      );
+    } catch (embeddingError) {
+      console.error("[POST /api/links] Failed to generate/save embedding:", embeddingError);
+    }
 
     return NextResponse.json(link, { status: 201 });
   } catch (err) {

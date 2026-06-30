@@ -4,12 +4,14 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [pgvector(map: "vector"), prisma_postgres]
 }
 
 model Link {
@@ -26,4 +28,36 @@ model Link {
   // Additional context provided by the user to help AI search
   aiContext   String?
   createdAt   DateTime @default(now())
+  embedding   LinkEmbedding?
 }
+
+model LinkEmbedding {
+  id        String   @id @default(cuid())
+  linkId    String   @unique
+  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  vector    Unsupported("vector(384)")
+}
+
+enum ChatRole {
+  USER
+  ASSISTANT
+}
+
+model ChatSession {
+  id        String        @id @default(cuid())
+  title     String
+  createdAt DateTime      @default(now())
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id           String      @id @default(cuid())
+  sessionId    String
+  session      ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role         ChatRole
+  content      String
+  referenceIds String[]
+  createdAt    DateTime    @default(now())
+}
+
+

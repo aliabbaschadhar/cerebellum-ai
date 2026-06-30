@@ -1,11 +1,116 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --font-inter: "Inter", sans-serif;
+  --font-libre-caslon: var(--font-libre-caslon), "Libre Caslon Text", serif;
+  --font-plus-jakarta:
+    var(--font-plus-jakarta), "Plus Jakarta Sans", sans-serif;
 }
 
-@theme inline {
-  --font-sans: var(--font-inter);
+@theme {
+  --font-display: var(--font-libre-caslon);
+  --font-sans: var(--font-plus-jakarta);
+
+  /* Colors from Design.md */
+  --color-surface: #f8f7f3;
+  --color-surface-dim: #d8d8d4;
+  --color-surface-bright: #f8f7f3;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f1ed;
+  --color-surface-container: #ecece8;
+  --color-surface-container-high: #e7e6e2;
+  --color-surface-container-highest: #e1e0dd;
+  --color-on-surface: #1c1c16;
+  --color-on-surface-variant: #564241;
+  --color-inverse-surface: #31312a;
+  --color-inverse-on-surface: #f4f0e7;
+  --color-outline: #8a7170;
+  --color-outline-variant: #ddc0be;
+  --color-surface-tint: #a43a3d;
+  --color-primary: #a0383b;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #c15051;
+  --color-on-primary-container: #fffbff;
+  --color-inverse-primary: #ffb3b1;
+  --color-secondary: #894d4e;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fdb0b0;
+  --color-on-secondary-container: #794041;
+  --color-tertiary: #645b41;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #7d7458;
+  --color-on-tertiary-container: #fffbff;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-primary-fixed: #ffdad8;
+  --color-primary-fixed-dim: #ffb3b1;
+  --color-on-primary-fixed: #410007;
+  --color-on-primary-fixed-variant: #842328;
+  --color-secondary-fixed: #ffdad9;
+  --color-secondary-fixed-dim: #ffb3b3;
+  --color-on-secondary-fixed: #370c0f;
+  --color-on-secondary-fixed-variant: #6d3738;
+  --color-tertiary-fixed: #eee2c0;
+  --color-tertiary-fixed-dim: #d2c6a6;
+  --color-on-tertiary-fixed: #211b07;
+  --color-on-tertiary-fixed-variant: #4e462e;
+  --color-background: #f8f7f3;
+  --color-on-background: #1c1c16;
+  --color-surface-variant: #e6e2d9;
+  --color-emissive-glow: rgba(227, 106, 106, 0.4);
+  --color-glass-stroke: rgba(255, 255, 255, 0.6);
+  --color-text-rich: #2d2926;
+
+  --color-pulse-coral: #e36a6a;
+  --color-pulse-blush: #ffb2b2;
+  --color-pulse-gold: #fff2d0;
+
+  --color-platform-youtube: #a0383b;
+  --color-platform-youtube-bg: rgba(255, 218, 214, 0.6);
+  --color-platform-youtube-border: rgba(255, 179, 177, 0.4);
+
+  --color-platform-twitter: #1c1c16;
+  --color-platform-twitter-bg: rgba(236, 232, 222, 0.7);
+  --color-platform-twitter-border: rgba(221, 192, 190, 0.5);
+
+  --color-platform-github: #2d2926;
+  --color-platform-github-bg: rgba(241, 238, 228, 0.6);
+  --color-platform-github-border: rgba(221, 192, 190, 0.4);
+
+  --color-platform-reddit: #c2410c;
+  --color-platform-reddit-bg: rgba(255, 237, 213, 0.5);
+  --color-platform-reddit-border: rgba(254, 215, 170, 0.4);
+
+  --color-platform-instagram: #894d4e;
+  --color-platform-instagram-bg: rgba(253, 176, 176, 0.3);
+  --color-platform-instagram-border: rgba(255, 179, 179, 0.4);
+
+  --color-platform-linkedin: #1e40af;
+  --color-platform-linkedin-bg: rgba(239, 246, 255, 0.6);
+  --color-platform-linkedin-border: rgba(191, 219, 254, 0.4);
+
+  --color-platform-tiktok: #155e75;
+  --color-platform-tiktok-bg: rgba(224, 242, 254, 0.6);
+  --color-platform-tiktok-border: rgba(186, 230, 253, 0.4);
+
+  --color-platform-hashnode: #1d4ed8;
+  --color-platform-hashnode-bg: rgba(219, 234, 254, 0.5);
+  --color-platform-hashnode-border: rgba(191, 219, 254, 0.4);
+
+  --color-platform-medium: #1c1c16;
+  --color-platform-medium-bg: rgba(241, 238, 228, 0.6);
+  --color-platform-medium-border: rgba(221, 192, 190, 0.4);
+
+  --color-platform-article: #065f46;
+  --color-platform-article-bg: rgba(209, 250, 229, 0.6);
+  --color-platform-article-border: rgba(167, 243, 208, 0.4);
+
+  --color-platform-generic: #a0383b;
+  --color-platform-generic-bg: rgba(253, 176, 176, 0.2);
+  --color-platform-generic-border: rgba(255, 179, 179, 0.4);
 }
 
 * {
@@ -13,31 +118,199 @@
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  background: #0c0c0f;
-  color: #fff;
-  font-family: var(--font-sans), system-ui, sans-serif;
+  background: #f8f7f3; /* background layer */
+  color: #1c1c16;
+  font-family: var(--font-plus-jakarta), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgba(99, 102, 241, 0.4);
+  background: rgba(227, 106, 106, 0.2);
+  color: #a0383b;
+}
+
+/* Animations */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(var(--rotate-deg, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(var(--rotate-deg, 0deg));
+  }
+}
+
+@keyframes float-reverse {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(var(--rotate-deg, 0deg));
+  }
+  50% {
+    transform: translateY(8px) rotate(var(--rotate-deg, 0deg));
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+    filter: drop-shadow(0 0 20px rgba(227, 106, 106, 0.6));
+  }
+}
+
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float-1 {
+  animation: float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-2 {
+  animation: float-reverse 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-3 {
+  animation: float 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-orbit-spin {
+  animation: orbit-spin 120s linear infinite;
+  will-change: transform;
+}
+
+.tab-fade-in {
+  animation: tabFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
 /* Smooth scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #f8f7f3;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: #d8d8d4;
   border-radius: 999px;
+  border: 2px solid #f8f7f3;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #c7c4ba;
+}
+
+/* Dark Mode Overrides */
+.dark {
+  color-scheme: dark;
+  --color-background: #121210;
+  --color-on-background: #e6e2d9;
+  --color-surface: #1c1c16;
+  --color-on-surface: #e6e2d9;
+  --color-surface-dim: #161612;
+  --color-surface-bright: #262620;
+  --color-surface-container-lowest: #0c0c09;
+  --color-surface-container-low: #181814;
+  --color-surface-container: #1e1e1a;
+  --color-surface-container-high: #242420;
+  --color-surface-container-highest: #2b2b26;
+  --color-on-surface-variant: #c7c4ba;
+  --color-text-rich: #ffffff;
+  --color-outline: #564241;
+  --color-outline-variant: #8a7170;
+
+  --color-platform-youtube: #ffb3b1;
+  --color-platform-youtube-bg: rgba(160, 56, 59, 0.2);
+  --color-platform-youtube-border: rgba(160, 56, 59, 0.4);
+
+  --color-platform-twitter: #e6e2d9;
+  --color-platform-twitter-bg: rgba(255, 255, 255, 0.05);
+  --color-platform-twitter-border: rgba(255, 255, 255, 0.1);
+
+  --color-platform-github: #e6e2d9;
+  --color-platform-github-bg: rgba(255, 255, 255, 0.05);
+  --color-platform-github-border: rgba(255, 255, 255, 0.1);
+
+  --color-platform-reddit: #ff7a59;
+  --color-platform-reddit-bg: rgba(194, 65, 12, 0.2);
+  --color-platform-reddit-border: rgba(194, 65, 12, 0.4);
+
+  --color-platform-instagram: #ffb3b3;
+  --color-platform-instagram-bg: rgba(137, 77, 78, 0.2);
+  --color-platform-instagram-border: rgba(137, 77, 78, 0.4);
+
+  --color-platform-linkedin: #93c5fd;
+  --color-platform-linkedin-bg: rgba(30, 64, 175, 0.2);
+  --color-platform-linkedin-border: rgba(30, 64, 175, 0.4);
+
+  --color-platform-tiktok: #67e8f9;
+  --color-platform-tiktok-bg: rgba(21, 94, 117, 0.2);
+  --color-platform-tiktok-border: rgba(21, 94, 117, 0.4);
+
+  --color-platform-hashnode: #93c5fd;
+  --color-platform-hashnode-bg: rgba(29, 78, 216, 0.2);
+  --color-platform-hashnode-border: rgba(29, 78, 216, 0.4);
+
+  --color-platform-medium: #e6e2d9;
+  --color-platform-medium-bg: rgba(255, 255, 255, 0.05);
+  --color-platform-medium-border: rgba(255, 255, 255, 0.1);
+
+  --color-platform-article: #34d399;
+  --color-platform-article-bg: rgba(6, 95, 70, 0.2);
+  --color-platform-article-border: rgba(6, 95, 70, 0.4);
+
+  --color-platform-generic: #ffb3b1;
+  --color-platform-generic-bg: rgba(160, 56, 59, 0.15);
+  --color-platform-generic-border: rgba(160, 56, 59, 0.3);
+}
+
+.dark body {
+  background: #121210;
+  color: #e6e2d9;
+}
+
+.dark {
+  background: rgba(20, 20, 16, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .glass-modal {
+  background: rgba(28, 28, 22, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }

@@ -53,21 +53,24 @@ export default function AddLinkForm({ onAdded }: Props) {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <form onSubmit={handleSubmit} className="relative">
+      <form onSubmit={handleSubmit} className="relative flex flex-col gap-4">
+        {/* Main URL Input Container */}
         <div
-          className={`flex items-center gap-3 rounded-2xl border bg-white/[0.04] px-4 py-3 transition-all duration-200 ${
+          className={`flex items-center gap-3 rounded-full px-5 py-3.5 transition-all duration-300 border ${
             status === "error"
-              ? "border-red-500/50"
-              : "border-white/[0.08] focus-within:border-indigo-500/60 focus-within:bg-white/[0.06]"
+              ? "border-error/50 bg-[#ffdad6]/20"
+              : "border-transparent bg-[#FFF2D0]/40 focus-within:bg-white/80 focus-within:border-[#E36A6A] focus-within:shadow-[0_0_15px_rgba(227,106,106,0.25)] focus-within:backdrop-blur-md"
           }`}
         >
           {/* URL icon */}
           <svg
-            className="shrink-0 text-white/30 w-5 h-5"
+            className={`shrink-0 w-5 h-5 transition-colors duration-300 ${
+              status === "error" ? "text-error" : "text-[#8a7170] focus-within:text-[#a0383b]"
+            }`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="1.8"
           >
             <path
               d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"
@@ -88,7 +91,7 @@ export default function AddLinkForm({ onAdded }: Props) {
               if (status === "error") setStatus("idle");
             }}
             placeholder="Paste any URL — youtube.com, x.com, github.com…"
-            className="flex-1 bg-transparent text-sm text-white placeholder:text-white/25 outline-none min-w-0"
+            className="flex-1 bg-transparent text-sm text-text-rich placeholder:text-[#8a7170]/60 outline-none min-w-0 font-medium"
             disabled={isLoading}
             autoFocus
           />
@@ -96,8 +99,8 @@ export default function AddLinkForm({ onAdded }: Props) {
           <button
             type="submit"
             disabled={isLoading || !url.trim()}
-            className="shrink-0 h-9 px-5 rounded-xl bg-indigo-600 text-white text-sm font-medium
-              hover:bg-indigo-500 active:scale-95 transition-all duration-150
+            className="shrink-0 h-10 px-6 rounded-full bg-gradient-to-r from-[#E36A6A] to-[#FFB2B2] text-white text-sm font-semibold
+              hover:shadow-[0_0_15px_rgba(227,106,106,0.4)] active:scale-95 transition-all duration-200
               disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100
               flex items-center gap-2"
           >
@@ -125,28 +128,29 @@ export default function AddLinkForm({ onAdded }: Props) {
                 Saving…
               </>
             ) : (
-              "Save"
+              "Save Link"
             )}
           </button>
         </div>
+
         {/* Optional AI Context Field */}
-        <div className="mt-3 flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <textarea
             value={aiContext}
             onChange={(e) => setAiContext(e.target.value)}
-            placeholder="Add optional details..."
+            placeholder="Add optional context/tags for your Second Brain..."
             rows={2}
-            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200 focus:border-indigo-500/60 focus:bg-white/[0.06] resize-none"
+            className="w-full rounded-2xl border border-transparent bg-[#FFF2D0]/40 px-5 py-3.5 text-sm text-text-rich placeholder:text-[#8a7170]/60 outline-none transition-all duration-300 focus:bg-white/80 focus:border-[#E36A6A] focus:shadow-[0_0_15px_rgba(227,106,106,0.25)] focus:backdrop-blur-md resize-none font-medium"
             disabled={isLoading}
           />
-          <p className="text-xs text-white/40 pl-1">
-            * This helps the AI search and understand this link better later.
+          <p className="text-xs text-[#8a7170] pl-1 font-medium">
+            * This helps Cerebellum AI search and retrieve this link using natural language query.
           </p>
         </div>
       </form>
 
       {status === "error" && errorMsg && (
-        <p className="mt-2 text-xs text-red-400 text-left pl-1">{errorMsg}</p>
+        <p className="mt-2 text-xs text-error font-semibold text-left pl-2">{errorMsg}</p>
       )}
     </div>
   );
