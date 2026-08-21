@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { Camera, Trash2, User } from "lucide-react";
 
 interface SettingsTabProps {
-  profile: { name: string; email: string; cachePath: string };
+  profile: { name: string; email: string; cachePath: string; avatarUrl?: string };
   setProfile: React.Dispatch<
-    React.SetStateAction<{ name: string; email: string; cachePath: string }>
+    React.SetStateAction<{ name: string; email: string; cachePath: string; avatarUrl?: string }>
   >;
 }
 
@@ -13,17 +14,46 @@ export default function SettingsTab({ profile, setProfile }: SettingsTabProps) {
   const [profileName, setProfileName] = useState(profile.name);
   const [profileEmail, setProfileEmail] = useState(profile.email);
   const [profileCachePath, setProfileCachePath] = useState(profile.cachePath);
+  const [profileAvatarUrl, setProfileAvatarUrl] = useState(profile.avatarUrl || "");
   const [saveProfileSuccess, setSaveProfileSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size should be under 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setProfileAvatarUrl(result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleRemoveAvatar() {
+    setProfileAvatarUrl("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
 
   function handleSubmitProfile(e: React.FormEvent) {
     e.preventDefault();
     localStorage.setItem("profile_name", profileName);
     localStorage.setItem("profile_email", profileEmail);
     localStorage.setItem("profile_cache", profileCachePath);
+    localStorage.setItem("profile_avatar", profileAvatarUrl);
+
     setProfile({
       name: profileName,
       email: profileEmail,
       cachePath: profileCachePath,
+      avatarUrl: profileAvatarUrl,
     });
     setSaveProfileSuccess(true);
     setTimeout(() => setSaveProfileSuccess(false), 3000);
@@ -36,18 +66,55 @@ export default function SettingsTab({ profile, setProfile }: SettingsTabProps) {
           System Configuration & Profile
         </h1>
         <p className="text-xs text-on-surface-variant dark:text-white/70 font-medium">
-          Manage Cerebellum AI user settings, directory indexes, and system parameters.
+          Manage Cerebellum AI user settings, profile picture, directory indexes, and system parameters.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         {/* Left profile card */}
         <div className="lg:col-span-5 neu-card rounded-3xl p-6 flex flex-col items-center gap-6">
-          <div className="relative w-24 h-24 rounded-full p-1 neu-raised flex items-center justify-center">
-            <div className="relative w-full h-full rounded-full neu-sunken flex items-center justify-center text-3xl font-bold">
-              🏴‍☠️
+          {/* Avatar Upload Container */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative group w-28 h-28 rounded-full p-1 neu-raised flex items-center justify-center cursor-pointer"
+                 onClick={() => fileInputRef.current?.click()}>
+              <div className="relative w-full h-full rounded-full neu-sunken overflow-hidden flex items-center justify-center text-3xl font-bold">
+                {profileAvatarUrl ? (
+                  <img
+                    src={profileAvatarUrl}
+                    alt={profileName}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <User className="w-12 h-12 text-on-surface-variant/60 dark:text-white/50" />
+                )}
+
+                {/* Hover overlay with Camera Icon */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-1 rounded-full">
+                  <Camera className="w-6 h-6" />
+                  <span className="text-[9px] font-bold uppercase tracking-wider">Change</span>
+                </div>
+              </div>
             </div>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            {profileAvatarUrl && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                className="text-[10px] font-bold text-error hover:underline cursor-pointer transition-all"
+                title="Remove photo"
+              >
+                Remove Picture
+              </button>
+            )}
           </div>
+
           <div className="text-center">
             <h3 className="text-sm font-bold text-text-rich dark:text-white">
               {profileName}
@@ -94,7 +161,7 @@ export default function SettingsTab({ profile, setProfile }: SettingsTabProps) {
 
             {saveProfileSuccess && (
               <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 text-center">
-                Profile metadata saved!
+                Profile metadata & picture saved!
               </p>
             )}
 

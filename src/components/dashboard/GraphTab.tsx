@@ -4,11 +4,20 @@ import { useState, useRef } from "react";
 import type { LinkData } from "@/app/page";
 import { useForceGraph } from "@/hooks/useForceGraph";
 import { getLinkTags } from "@/lib/tagUtils";
+import CustomSelect, { CustomSelectOption } from "@/components/ui/CustomSelect";
 
 interface GraphTabProps {
   links: LinkData[];
   isDarkMode: boolean;
 }
+
+const NODE_TYPE_OPTIONS: CustomSelectOption[] = [
+  { value: "youtube", label: "YouTube" },
+  { value: "twitter", label: "Twitter / X" },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "generic", label: "Web Link" },
+];
 
 export default function GraphTab({ links, isDarkMode }: GraphTabProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -54,6 +63,16 @@ export default function GraphTab({ links, isDarkMode }: GraphTabProps) {
   }
 
   const currentNodes = getNodes();
+
+  const nodeAOptions: CustomSelectOption[] = [
+    { value: "", label: "Node A..." },
+    ...currentNodes.map((n) => ({ value: n.id, label: n.label })),
+  ];
+
+  const nodeBOptions: CustomSelectOption[] = [
+    { value: "", label: "Node B..." },
+    ...currentNodes.map((n) => ({ value: n.id, label: n.label })),
+  ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
@@ -101,19 +120,11 @@ export default function GraphTab({ links, isDarkMode }: GraphTabProps) {
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <div className="neu-sunken rounded-2xl px-2 py-1">
-                <select
-                  value={customNodeType}
-                  onChange={(e) => setCustomNodeType(e.target.value)}
-                  className="w-full h-9 bg-transparent text-xs font-bold text-text-rich dark:text-white outline-none"
-                >
-                  <option value="youtube">YouTube</option>
-                  <option value="twitter">Twitter / X</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="tiktok">TikTok</option>
-                  <option value="generic">Web Link</option>
-                </select>
-              </div>
+              <CustomSelect
+                value={customNodeType}
+                onChange={setCustomNodeType}
+                options={NODE_TYPE_OPTIONS}
+              />
 
               <div className="neu-sunken rounded-2xl px-3.5 py-1">
                 <input
@@ -145,35 +156,19 @@ export default function GraphTab({ links, isDarkMode }: GraphTabProps) {
             className="flex flex-col gap-3.5"
           >
             <div className="grid grid-cols-2 gap-2">
-              <div className="neu-sunken rounded-2xl px-2 py-1">
-                <select
-                  value={customLinkA}
-                  onChange={(e) => setCustomLinkA(e.target.value)}
-                  className="w-full h-9 bg-transparent text-xs font-bold text-text-rich dark:text-white outline-none"
-                >
-                  <option value="">Node A...</option>
-                  {currentNodes.map((n) => (
-                    <option key={n.id} value={n.id}>
-                      {n.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <CustomSelect
+                value={customLinkA}
+                onChange={setCustomLinkA}
+                options={nodeAOptions}
+                placeholder="Node A..."
+              />
 
-              <div className="neu-sunken rounded-2xl px-2 py-1">
-                <select
-                  value={customLinkB}
-                  onChange={(e) => setCustomLinkB(e.target.value)}
-                  className="w-full h-9 bg-transparent text-xs font-bold text-text-rich dark:text-white outline-none"
-                >
-                  <option value="">Node B...</option>
-                  {currentNodes.map((n) => (
-                    <option key={n.id} value={n.id}>
-                      {n.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <CustomSelect
+                value={customLinkB}
+                onChange={setCustomLinkB}
+                options={nodeBOptions}
+                placeholder="Node B..."
+              />
             </div>
 
             <button

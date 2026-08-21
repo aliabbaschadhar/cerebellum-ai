@@ -21,6 +21,13 @@ export interface ChatSession {
   createdAt: string;
 }
 
+export interface UserProfile {
+  name: string;
+  email: string;
+  cachePath: string;
+  avatarUrl?: string;
+}
+
 export default function DashboardPage() {
   const [links, setLinks] = useState<LinkData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +37,10 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>("home");
 
   // Persistent Dark Mode Theme State
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("theme") === "dark";
+  });
 
   // Hoisted Chat Sessions and Collapse States
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -39,35 +49,27 @@ export default function DashboardPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Hoisted User Profile State
-  const [profile, setProfile] = useState({
-    name: "Ali Abbas Chadhar",
-    email: "ali@cerebellum.ai",
-    cachePath: "/home/aliabbaschadhar/.config/cerebellum/cache/",
+  const [profile, setProfile] = useState<UserProfile>(() => {
+    if (typeof window === "undefined") {
+      return {
+        name: "Ali Abbas Chadhar",
+        email: "ali@cerebellum.ai",
+        cachePath: "/home/aliabbaschadhar/.config/cerebellum/cache/",
+        avatarUrl: "",
+      };
+    }
+    return {
+      name: localStorage.getItem("profile_name") || "Ali Abbas Chadhar",
+      email: localStorage.getItem("profile_email") || "ali@cerebellum.ai",
+      cachePath:
+        localStorage.getItem("profile_cache") ||
+        "/home/aliabbaschadhar/.config/cerebellum/cache/",
+      avatarUrl: localStorage.getItem("profile_avatar") || "",
+    };
   });
 
   // Pending Search Query to run in Chat Tab
   const [pendingChatQuery, setPendingChatQuery] = useState<string | null>(null);
-
-  // Initialize theme and profile from localStorage, defaulting to light mode
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const savedProfileName = localStorage.getItem("profile_name");
-    const savedProfileEmail = localStorage.getItem("profile_email");
-    const savedProfileCache = localStorage.getItem("profile_cache");
-
-    if (savedProfileName || savedProfileEmail || savedProfileCache) {
-      setProfile({
-        name: savedProfileName || "Ali Abbas Chadhar",
-        email: savedProfileEmail || "ali@cerebellum.ai",
-        cachePath: savedProfileCache || "/home/aliabbaschadhar/.config/cerebellum/cache/",
-      });
-    }
-
-    const timer = setTimeout(() => {
-      setIsDarkMode(savedTheme === "dark");
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Update theme classes on document changes
   useEffect(() => {
@@ -164,7 +166,7 @@ export default function DashboardPage() {
       )}
 
       {/* 2. Main Tab Viewport */}
-      <main className="flex-1 p-8 overflow-y-auto max-w-6xl mx-auto w-full relative z-10 transition-all duration-300">
+      <main className="flex-1 p-6 md:p-8 overflow-y-auto w-full max-w-7xl mx-auto relative z-10 transition-all duration-300 scrollbar-none">
 
         {/* Global Loading Overlay */}
         {loading && (

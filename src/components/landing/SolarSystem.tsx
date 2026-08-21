@@ -113,7 +113,7 @@ export default function SolarSystem({
 
       {/* Solar System Orbit Visualization Area */}
       <div
-        className={`relative w-full max-w-[650px] aspect-square mx-auto flex items-center justify-center transition-all duration-1000 delay-[250ms] transform ${showSolarSystem ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+        className={`solar-system-container relative w-full max-w-[650px] aspect-square mx-auto flex items-center justify-center transition-all duration-1000 delay-[250ms] transform ${showSolarSystem ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
         style={{ transform: "scaleY(0.6)" }}
       >
         {/* Concentric Orbit Rings */}

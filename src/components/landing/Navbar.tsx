@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface NavbarProps {
@@ -22,9 +22,20 @@ export default function Navbar({
   isDarkMode,
   setIsDarkMode,
 }: NavbarProps) {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="w-full fixed top-4 left-0 right-0 z-50 px-4 pointer-events-none">
-      <header className="max-w-[1200px] mx-auto px-6 h-16 rounded-full flex items-center justify-between pointer-events-auto neu-raised transition-all duration-300">
+      <header className="max-w-[1200px] mx-auto px-6 h-16 rounded-full flex items-center justify-between pointer-events-auto neu-nav bg-background/95 backdrop-blur-2xl transition-all duration-300">
         {/* Logo */}
         <div
           className="flex items-center gap-2.5 cursor-pointer group"

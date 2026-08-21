@@ -45,7 +45,7 @@ interface SidebarProps {
   isSessionsLoading: boolean;
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
-  profile: { name: string; email: string; cachePath: string };
+  profile: { name: string; email: string; cachePath: string; avatarUrl?: string };
 }
 
 export default function Sidebar({
@@ -143,7 +143,7 @@ export default function Sidebar({
         </button>
 
         {/* Navigation Tabs */}
-        <nav className="flex flex-col gap-1.5 overflow-y-auto max-h-[40%] scrollbar-thin">
+        <nav className="flex flex-col gap-1.5 overflow-y-auto max-h-[40%] scrollbar-none">
           {[
             { id: "home", label: "Home", icon: Home },
             { id: "chat", label: "Cerebellum AI", icon: Sparkles },
@@ -188,7 +188,7 @@ export default function Sidebar({
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant dark:text-white/50 px-2">
             Chats
           </span>
-          <div className="flex-1 overflow-y-auto space-y-1.5 pr-0.5 scrollbar-thin">
+          <div className="flex-1 overflow-y-auto space-y-1.5 pr-0.5 scrollbar-none">
             {isSessionsLoading ? (
               <div className="flex items-center justify-center py-6 text-[10px] text-on-surface-variant/60 font-bold animate-pulse">
                 Loading chats...
@@ -238,10 +238,18 @@ export default function Sidebar({
         {/* Profile Card */}
         <div className="flex items-center justify-between p-2.5 rounded-2xl neu-sunken">
           <div className="flex items-center gap-2.5 min-w-0">
-            {/* Dynamic Initial Avatar */}
-            <div className="w-8.5 h-8.5 rounded-full neu-raised-sm bg-primary text-white flex items-center justify-center font-bold text-xs shrink-0 select-none">
-              {initials}
-            </div>
+            {/* Dynamic Profile Avatar */}
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name}
+                className="w-8.5 h-8.5 rounded-full object-cover shrink-0 neu-raised-sm border border-white/20"
+              />
+            ) : (
+              <div className="w-8.5 h-8.5 rounded-full neu-raised-sm bg-primary text-white flex items-center justify-center font-bold text-xs shrink-0 select-none">
+                {initials}
+              </div>
+            )}
             <div className="flex flex-col min-w-0">
               <span className="text-xs font-bold text-text-rich dark:text-white truncate">
                 {profile.name}

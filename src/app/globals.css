@@ -7,16 +7,17 @@
   --font-plus-jakarta:
     var(--font-plus-jakarta), "Plus Jakarta Sans", sans-serif;
 
-  /* Light Mode Neumorphism System */
+  /* Light Mode Neumorphism System - Solid Contrast & Dark Hover Shadow */
   --neu-bg: #e0e5ec;
   --neu-surface: #e0e5ec;
   --neu-text: #1e2026;
-  --neu-shadow-dark: #b8bec5;
-  --neu-shadow-light: #ffffff;
-  --neu-shadow-dark-inset: #a3b1c6;
-  --neu-shadow-light-inset: #ffffff;
-  --neu-border: rgba(255, 255, 255, 0.6);
-  --neu-border-inset: rgba(184, 190, 197, 0.4);
+  --neu-shadow-dark: rgba(166, 174, 186, 0.45);
+  --neu-shadow-light: rgba(255, 255, 255, 0.7);
+  --neu-shadow-dark-inset: rgba(163, 177, 198, 0.4);
+  --neu-shadow-light-inset: rgba(255, 255, 255, 0.7);
+  --neu-shadow-hover: 0 0 20px rgba(0, 0, 0, 0.38), 0 6px 18px rgba(0, 0, 0, 0.22);
+  --neu-border: rgba(0, 0, 0, 0.08);
+  --neu-border-inset: rgba(184, 190, 197, 0.25);
 }
 
 @theme {
@@ -32,38 +33,38 @@
   --color-surface-container: #e0e5ec;
   --color-surface-container-high: #d8dde5;
   --color-surface-container-highest: #d0d6e0;
-  
+
   --color-on-surface: #1e2026;
   --color-on-surface-variant: #525866;
-  
+
   --color-inverse-surface: #1b1d22;
   --color-inverse-on-surface: #e0e5ec;
-  
+
   --color-outline: #949ca8;
   --color-outline-variant: #b8bec5;
-  
+
   --color-surface-tint: #c94045;
   --color-primary: #c94045;
   --color-on-primary: #ffffff;
   --color-primary-container: #f9dcdc;
   --color-on-primary-container: #541113;
   --color-inverse-primary: #ffb4b4;
-  
+
   --color-secondary: #9c5c5e;
   --color-on-secondary: #ffffff;
   --color-secondary-container: #fcdcdc;
   --color-on-secondary-container: #4c181a;
-  
+
   --color-tertiary: #7c725a;
   --color-on-tertiary: #ffffff;
   --color-tertiary-container: #f7ecd2;
   --color-on-tertiary-container: #3d3522;
-  
+
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
-  
+
   --color-background: #e0e5ec;
   --color-on-background: #1e2026;
   --color-surface-variant: #d8dde5;
@@ -147,31 +148,37 @@ body {
 
 /* Animations */
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0px) rotate(var(--rotate-deg, 0deg));
   }
+
   50% {
     transform: translateY(-8px) rotate(var(--rotate-deg, 0deg));
   }
 }
 
 @keyframes float-reverse {
+
   0%,
   100% {
     transform: translateY(0px) rotate(var(--rotate-deg, 0deg));
   }
+
   50% {
     transform: translateY(6px) rotate(var(--rotate-deg, 0deg));
   }
 }
 
 @keyframes pulse-soft {
+
   0%,
   100% {
     transform: scale(1);
     opacity: 0.8;
   }
+
   50% {
     transform: scale(1.08);
     opacity: 1;
@@ -183,6 +190,7 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -193,6 +201,7 @@ body {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -203,6 +212,7 @@ body {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -213,6 +223,7 @@ body {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -248,6 +259,7 @@ body {
   animation: tabFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: transform, opacity;
 }
+
 .animate-fade-up {
   animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -256,6 +268,7 @@ body {
   0% {
     transform: rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg);
   }
@@ -266,54 +279,71 @@ body {
   will-change: transform;
 }
 
+/* Pause the ENTIRE solar system animation whenever ANY node or planet inside the container is hovered */
+.solar-system-container:hover .animate-orbit,
+.solar-system-container:has(:hover) .animate-orbit {
+  animation-play-state: paused !important;
+}
+
 .animate-orbit:hover {
-  animation-play-state: paused;
   z-index: 50;
 }
 
-/* Neumorphic Utility System */
+/* Neumorphic Utility System - Inner Inset Shadow Unhovered, Ambient Shadow Glow on Hover */
 .neu-flat {
   background: var(--color-background);
 }
 
 .neu-raised {
   background: var(--color-background);
-  box-shadow: 6px 6px 14px var(--neu-shadow-dark), -6px -6px 14px var(--neu-shadow-light);
-  border: 1px solid var(--neu-border);
+  box-shadow: inset 3px 3px 8px var(--neu-shadow-dark-inset), inset -3px -3px 8px var(--neu-shadow-light-inset);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neu-raised:hover {
+  box-shadow: var(--neu-shadow-hover);
+  transform: translateY(-2px);
 }
 
 .neu-raised-sm {
   background: var(--color-background);
-  box-shadow: 3px 3px 8px var(--neu-shadow-dark), -3px -3px 8px var(--neu-shadow-light);
-  border: 1px solid var(--neu-border);
+  box-shadow: inset 2px 2px 6px var(--neu-shadow-dark-inset), inset -2px -2px 6px var(--neu-shadow-light-inset);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neu-raised-sm:hover {
+  box-shadow: var(--neu-shadow-hover);
+  transform: translateY(-1px);
 }
 
 .neu-sunken {
   background: var(--color-background);
-  box-shadow: inset 4px 4px 8px var(--neu-shadow-dark-inset), inset -4px -4px 8px var(--neu-shadow-light-inset);
-  border: 1px solid var(--neu-border-inset);
+  box-shadow: inset 3.5px 3.5px 8px var(--neu-shadow-dark-inset), inset -3.5px -3.5px 8px var(--neu-shadow-light-inset);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .neu-sunken-sm {
   background: var(--color-background);
-  box-shadow: inset 2.5px 2.5px 5px var(--neu-shadow-dark-inset), inset -2.5px -2.5px 5px var(--neu-shadow-light-inset);
-  border: 1px solid var(--neu-border-inset);
+  box-shadow: inset 2px 2px 5px var(--neu-shadow-dark-inset), inset -2px -2px 5px var(--neu-shadow-light-inset);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .neu-button {
   background: var(--color-background);
-  box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light);
-  border: 1px solid var(--neu-border);
+  box-shadow: inset 2px 2px 6px var(--neu-shadow-dark-inset), inset -2px -2px 6px var(--neu-shadow-light-inset);
+  border: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .neu-button:hover {
-  box-shadow: 6px 6px 14px var(--neu-shadow-dark), -6px -6px 14px var(--neu-shadow-light);
-  transform: translateY(-1px);
+  box-shadow: var(--neu-shadow-hover);
+  transform: translateY(-1.5px);
 }
+
 .neu-button:active {
   box-shadow: inset 3px 3px 6px var(--neu-shadow-dark-inset), inset -3px -3px 6px var(--neu-shadow-light-inset);
   transform: translateY(0);
@@ -321,64 +351,87 @@ body {
 
 .neu-button-primary {
   background: linear-gradient(135deg, #c94045, #e55b5f);
-  box-shadow: 4px 4px 12px var(--neu-shadow-dark), -4px -4px 12px var(--neu-shadow-light);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: inset 2.5px 2.5px 6px rgba(0, 0, 0, 0.4), inset -2.5px -2.5px 6px rgba(255, 255, 255, 0.25);
+  border: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .neu-button-primary:hover {
-  box-shadow: 6px 6px 16px var(--neu-shadow-dark), -6px -6px 16px var(--neu-shadow-light);
-  transform: translateY(-1px);
+  box-shadow: var(--neu-shadow-hover);
+  transform: translateY(-1.5px);
 }
+
 .neu-button-primary:active {
-  box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.4), inset -3px -3px 6px rgba(255, 255, 255, 0.2);
+  box-shadow: inset 3.5px 3.5px 7px rgba(0, 0, 0, 0.5), inset -3.5px -3.5px 7px rgba(255, 255, 255, 0.2);
   transform: translateY(0);
 }
 
 .neu-card {
   background: var(--color-background);
-  box-shadow: 8px 8px 20px var(--neu-shadow-dark), -8px -8px 20px var(--neu-shadow-light);
-  border: 1px solid var(--neu-border);
+  box-shadow: 4px 4px 12px var(--neu-shadow-dark), -2px -2px 8px var(--neu-shadow-light);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .neu-card:hover {
-  box-shadow: 12px 12px 28px var(--neu-shadow-dark), -12px -12px 28px var(--neu-shadow-light);
+  box-shadow: var(--neu-shadow-hover);
+  transform: translateY(-2px);
 }
 
 .neu-nav {
   background: var(--color-background);
-  box-shadow: 6px 6px 16px var(--neu-shadow-dark), -6px -6px 16px var(--neu-shadow-light);
-  border: 1px solid var(--neu-border);
+  box-shadow: var(--neu-shadow-hover);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Glassmorphism Backward Compatibility Classes using Neumorphism */
 .glass-card {
   background: var(--color-background);
-  box-shadow: 6px 6px 16px var(--neu-shadow-dark), -6px -6px 16px var(--neu-shadow-light);
-  border: 1px solid var(--neu-border);
+  box-shadow: inset 3px 3px 8px var(--neu-shadow-dark-inset), inset -3px -3px 8px var(--neu-shadow-light-inset);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  box-shadow: var(--neu-shadow-hover);
 }
 
 .glass-nav {
   background: var(--color-background);
-  box-shadow: 6px 6px 16px var(--neu-shadow-dark), -6px -6px 16px var(--neu-shadow-light);
-  border: 1px solid var(--neu-border);
+  box-shadow: inset 3px 3px 8px var(--neu-shadow-dark-inset), inset -3px -3px 8px var(--neu-shadow-light-inset);
+  border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.glass-nav:hover {
+  box-shadow: var(--neu-shadow-hover);
+}
+
 /* Scrollbar styles */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: var(--color-background);
+  background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-outline-variant);
   border-radius: 999px;
-  border: 2px solid var(--color-background);
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-outline);
 }
@@ -393,12 +446,13 @@ body {
   --neu-shadow-light: #24272d;
   --neu-shadow-dark-inset: #111216;
   --neu-shadow-light-inset: #25282e;
+  --neu-shadow-hover: 0 0 24px rgba(0, 0, 0, 0.75), 0 8px 22px rgba(0, 0, 0, 0.45);
   --neu-border: rgba(255, 255, 255, 0.05);
   --neu-border-inset: rgba(0, 0, 0, 0.3);
 
   --color-background: #1b1d22;
   --color-on-background: #f5f6f8;
-  
+
   --color-surface: #1b1d22;
   --color-surface-dim: #16171b;
   --color-surface-bright: #22242a;
@@ -407,32 +461,32 @@ body {
   --color-surface-container: #1b1d22;
   --color-surface-container-high: #202228;
   --color-surface-container-highest: #262830;
-  
+
   --color-on-surface: #f5f6f8;
   --color-on-surface-variant: #a0a6b2;
   --color-inverse-surface: #e0e5ec;
   --color-inverse-on-surface: #1b1d22;
-  
+
   --color-outline: #5c6270;
   --color-outline-variant: #32353d;
-  
+
   --color-surface-tint: #ffb4b4;
   --color-primary: #e55b5f;
   --color-on-primary: #150002;
   --color-primary-container: #8c1e22;
   --color-on-primary-container: #ffdad9;
   --color-inverse-primary: #c94045;
-  
+
   --color-secondary: #e55c5e;
   --color-on-secondary: #150002;
   --color-secondary-container: #7a2d30;
   --color-on-secondary-container: #ffd9d9;
-  
+
   --color-tertiary: #dfc495;
   --color-on-tertiary: #3d2f10;
   --color-tertiary-container: #574523;
   --color-on-tertiary-container: #fce0b0;
-  
+
   --color-text-rich: #ffffff;
   --color-emissive-glow: rgba(229, 91, 95, 0.25);
 

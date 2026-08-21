@@ -27,19 +27,19 @@ export default function Hero({
           {/* Left Column: Typography & Actions */}
           <div className="lg:col-span-6 flex flex-col items-start gap-6 animate-fade-up">
             {/* Neumorphic Badge */}
-            <div className="neu-raised-sm px-4 py-1.5 rounded-full animate-pulse-soft">
+            <div className="neu-raised-sm px-4 py-1.5 rounded-full">
               <span className="text-[10px] font-bold text-primary dark:text-[#ffb4b4] tracking-[0.25em] uppercase">
                 AI-Powered Memory Matrix
               </span>
             </div>
 
             {/* Title */}
-            <h1 className="font-display text-[44px] sm:text-[56px] md:text-[62px] font-bold leading-[1.1] text-white/80 dark:text-white tracking-tight filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+            <h1 className="font-display text-[44px] sm:text-[56px] md:text-[62px] font-bold leading-[1.1] text-white tracking-tight drop-shadow-sm">
               Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#e55b5f] to-[#ffb4b4]">Second Brain</span> for Everything You Save
             </h1>
 
             {/* Subtitle */}
-            <p className="font-sans text-[15px] sm:text-[17px] text-on-surface-variant dark:text-white/80 leading-[1.6] font-medium max-w-xl">
+            <p className="font-sans text-[15px] sm:text-[17px] text-white/90 leading-[1.6] font-medium max-w-xl">
               Cerebellum AI automatically compiles and indexes your saved links, articles, YouTube videos, and social posts. Query your global memory instantly using conversational natural language.
             </p>
 

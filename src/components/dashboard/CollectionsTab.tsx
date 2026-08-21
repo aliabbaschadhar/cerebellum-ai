@@ -64,7 +64,7 @@ export default function CollectionsTab({
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1">
+        <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto scrollbar-none pr-1">
           {(["All", "Inbox", ...AVAILABLE_TAGS] as const).map((folder) => (
             <button
               key={folder}

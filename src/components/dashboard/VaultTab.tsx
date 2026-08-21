@@ -36,14 +36,19 @@ export default function VaultTab({
           Your second brain is empty. Save links from the Home dashboard.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {links.map((link) => (
-            <LinkCard
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 w-full">
+          {links.map((link, index) => (
+            <div
               key={link.id}
-              link={link}
-              onDeleted={onDeleted}
-              disabled={isPending}
-            />
+              className={index % 5 === 0 ? "col-span-1 md:col-span-2 w-full" : "col-span-1 w-full"}
+            >
+              <LinkCard
+                link={link}
+                onDeleted={onDeleted}
+                disabled={isPending}
+                isFeatured={index % 5 === 0}
+              />
+            </div>
           ))}
         </div>
       )}

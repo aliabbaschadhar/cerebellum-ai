@@ -9,7 +9,7 @@ interface HomeTabProps {
   onLinkAdded: (link: LinkData) => void;
   onDeleted: (id: string) => void;
   isPending: boolean;
-  profile: { name: string; email: string; cachePath: string };
+  profile: { name: string; email: string; cachePath: string; avatarUrl?: string };
   onSearchTriggered: (query: string) => void;
 }
 
@@ -74,7 +74,7 @@ export default function HomeTab({
   const firstName = profile.name ? profile.name.split(" ")[0] : "User";
 
   return (
-    <div className="flex flex-col gap-12 max-w-4xl mx-auto py-8 text-center">
+    <div className="flex flex-col gap-10 w-full max-w-none py-4 text-center">
       <div className="flex flex-col items-center gap-3">
         <h1 className="font-display text-4xl font-bold tracking-tight text-text-rich dark:text-white">
           Good morning, {firstName}
@@ -187,12 +187,12 @@ export default function HomeTab({
       </div>
 
       {/* Recently Saved Link Grid */}
-      <div className="flex flex-col gap-6 text-left border-t border-outline-variant/20 dark:border-white/10 pt-10">
+      <div className="w-full flex flex-col gap-6 text-left border-t border-outline-variant/20 dark:border-white/10 pt-8">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-text-rich dark:text-white">
             Recently Saved Links
           </h2>
-          <span className="text-xs font-bold text-on-surface-variant dark:text-white/60 neu-raised-sm px-3 py-1 rounded-full">
+          <span className="text-xs font-bold text-on-surface-variant dark:text-white/60 neu-raised-sm px-3.5 py-1 rounded-full">
             {links.length} total saves
           </span>
         </div>
@@ -202,16 +202,17 @@ export default function HomeTab({
             No links saved yet. Paste a URL above to index your first node.
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {links.slice(0, 4).map((link) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 w-full">
+            {links.map((link, index) => (
               <div
                 key={link.id}
-                className="transition-all duration-300"
+                className={index % 5 === 0 ? "col-span-1 md:col-span-2 w-full" : "col-span-1 w-full"}
               >
                 <LinkCard
                   link={link}
                   onDeleted={onDeleted}
                   disabled={isPending}
+                  isFeatured={index % 5 === 0}
                 />
               </div>
             ))}
