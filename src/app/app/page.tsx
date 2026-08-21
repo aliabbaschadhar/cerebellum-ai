@@ -134,7 +134,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-[#1c1c16] dark:bg-[#121210] dark:text-[#dddad0] font-sans selection:bg-[#E36A6A]/20 selection:text-[#a0383b] transition-colors duration-300 relative">
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-on-background font-sans selection:bg-primary/20 selection:text-primary transition-colors duration-300 relative">
       {/* 1. Left Sidebar Navigation */}
       <Sidebar
         activeTab={activeTab}
@@ -156,7 +156,7 @@ export default function DashboardPage() {
       {isSidebarCollapsed && (
         <button
           onClick={() => setIsSidebarCollapsed(false)}
-          className="fixed top-5 left-5 z-40 p-2.5 rounded-xl glass-panel bg-white/80 dark:bg-[#1c1c16]/80 border border-[#ddc0be]/30 dark:border-white/10 text-[#E36A6A] shadow-md hover:scale-105 transition-all cursor-pointer animate-in fade-in zoom-in-95 duration-200"
+          className="fixed top-5 left-5 z-40 p-2.5 rounded-2xl neu-button text-primary shadow-md hover:scale-105 transition-all cursor-pointer animate-in fade-in zoom-in-95 duration-200"
           title="Open Sidebar"
         >
           <PanelLeftOpen className="w-4.5 h-4.5" />
@@ -165,8 +165,6 @@ export default function DashboardPage() {
 
       {/* 2. Main Tab Viewport */}
       <main className="flex-1 p-8 overflow-y-auto max-w-6xl mx-auto w-full relative z-10 transition-all duration-300">
-        {/* Soft Background glow */}
-        <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-gradient-radial from-[#FFF2D0] dark:from-[#FFF2D0]/5 via-transparent to-transparent opacity-40 pointer-events-none -z-10" />
 
         {/* Global Loading Overlay */}
         {loading && (

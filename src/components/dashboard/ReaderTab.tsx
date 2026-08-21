@@ -18,13 +18,13 @@ export default function ReaderTab({ links }: ReaderTabProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
       {/* Left Articles list */}
-      <div className="lg:col-span-4 bg-[#f7f3e9]/40 dark:bg-white/5 border border-[#ddc0be]/40 dark:border-white/10 rounded-2xl p-5 flex flex-col gap-4">
-        <h3 className="text-xs font-bold text-[#8a7170] uppercase tracking-wider pl-1">
+      <div className="lg:col-span-4 neu-card rounded-3xl p-5 flex flex-col gap-4 text-left">
+        <h3 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider pl-1">
           Article Index
         </h3>
-        <div className="flex flex-col gap-1.5 max-h-[500px] overflow-y-auto">
+        <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1">
           {links.length === 0 ? (
-            <p className="text-xs text-[#8a7170] pl-1 it-italic">
+            <p className="text-xs text-on-surface-variant/80 dark:text-white/50 pl-1 italic">
               No articles saved.
             </p>
           ) : (
@@ -32,10 +32,10 @@ export default function ReaderTab({ links }: ReaderTabProps) {
               <button
                 key={link.id}
                 onClick={() => setSelectedArticleId(link.id)}
-                className={`w-full px-4 py-3 rounded-xl text-xs font-bold text-left transition-all border ${
+                className={`w-full px-4 py-3.5 rounded-2xl text-xs font-bold text-left transition-all cursor-pointer ${
                   activeId === link.id
-                    ? "bg-[#1c1c16] text-white dark:bg-white dark:text-[#1c1c16] border-transparent shadow-sm"
-                    : "bg-[#f1eee4]/40 dark:bg-transparent text-[#564241] dark:text-[#8a7170] border-transparent hover:bg-white/80 dark:hover:bg-white/5"
+                    ? "neu-sunken text-primary dark:text-[#ffb4b4] border border-primary/30"
+                    : "neu-raised-sm text-on-surface-variant dark:text-white/80 hover:neu-sunken"
                 }`}
               >
                 <p className="truncate">{link.title ?? link.url}</p>
@@ -50,11 +50,11 @@ export default function ReaderTab({ links }: ReaderTabProps) {
       </div>
 
       {/* Right Distraction Free Reader */}
-      <div className="lg:col-span-8  rounded-2xl p-8 border-white/60 dark:border-white/10 dark:bg-[#1c1c16]/50 shadow-sm flex flex-col gap-6 text-left">
+      <div className="lg:col-span-8 neu-card rounded-3xl p-8 flex flex-col gap-6 text-left">
         {selectedArticle ? (
-          <div className="flex flex-col gap-6 max-w-xl mx-auto">
-            <div className="border-b border-[#ddc0be]/20 dark:border-white/10 pb-4">
-              <span className="text-[10px] font-bold text-primary dark:text-[#ffb3b1] uppercase tracking-wider">
+          <div className="flex flex-col gap-6 max-w-xl mx-auto w-full">
+            <div className="border-b border-outline-variant/20 dark:border-white/10 pb-4">
+              <span className="text-[10px] font-bold text-primary dark:text-[#ffb4b4] uppercase tracking-wider neu-raised-sm px-3 py-1 rounded-full inline-block mb-3">
                 {selectedArticle.platform} Source &bull; 5 mins read
               </span>
               <h1 className="font-display text-2xl md:text-3xl font-bold leading-tight text-text-rich dark:text-white mt-1 mb-2">
@@ -64,17 +64,17 @@ export default function ReaderTab({ links }: ReaderTabProps) {
                 href={selectedArticle.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10.5px] font-bold text-[#8a7170] hover:text-primary transition-colors"
+                className="text-[10.5px] font-bold text-primary hover:underline transition-all"
               >
                 Open Original URL ↗
               </a>
             </div>
 
-            <div className="flex flex-col gap-5 text-sm md:text-base leading-relaxed text-[#564241] dark:text-[#dddad0] font-medium font-serif">
-              <p className="font-bold font-sans text-xs text-primary bg-[#E36A6A]/5 dark:bg-[#E36A6A]/10 border border-[#E36A6A]/20 p-4 rounded-xl">
+            <div className="flex flex-col gap-5 text-sm md:text-base leading-relaxed text-text-rich dark:text-white/90 font-medium font-serif">
+              <div className="font-bold font-sans text-xs text-primary neu-sunken p-5 rounded-2xl">
                 💡 **AI Abstract Insight:** &ldquo;
                 {selectedArticle.aiContext ?? "No abstract summarized."}&rdquo;
-              </p>
+              </div>
 
               <p>
                 {selectedArticle.description ??
@@ -97,7 +97,7 @@ export default function ReaderTab({ links }: ReaderTabProps) {
             </div>
           </div>
         ) : (
-          <div className="text-center py-20 italic text-[#8a7170]">
+          <div className="text-center py-20 italic text-on-surface-variant/80 dark:text-white/50 neu-sunken p-8 rounded-3xl">
             Select an article from the left column index to read in reader mode.
           </div>
         )}

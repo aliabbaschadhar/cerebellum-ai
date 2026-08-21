@@ -2,16 +2,18 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useScrollProgress } from "@/lib/useScrollProgress";
 
 // Extracted Sub-sections
-import Hero from "@/components/landing/Hero";
+import ScrollFrameHero from "@/components/landing/ScrollFrameHero";
 import Friction from "@/components/landing/Friction";
 import HowItWorks from "@/components/landing/HowItWorks";
 import Features from "@/components/landing/Features";
 import AutoCategorization from "@/components/landing/AutoCategorization";
 import FAQ from "@/components/landing/FAQ";
 import CTA from "@/components/landing/CTA";
+import SolarSystem from "@/components/landing/SolarSystem";
 
 export interface LinkData {
   id: string;
@@ -32,10 +34,6 @@ export default function Home() {
 
   // Persistent Dark Mode Theme State
   const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Simulated typing state for the mock search bar
-  const [typedText, setTypedText] = useState("");
-  const targetText = "that dopamine video from YouTube...";
 
   // Initialize theme from localStorage, defaulting to light mode
   useEffect(() => {
@@ -58,36 +56,6 @@ export default function Home() {
     }
   }, [isDarkMode]);
 
-  useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      setTypedText(targetText.substring(0, index));
-      index++;
-      if (index > targetText.length) {
-        setTimeout(() => {
-          index = 0;
-        }, 3000); // Pause before re-typing
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Mouse Parallax coordinates (normalized to range [-0.5, 0.5])
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX / window.innerWidth - 0.5;
-      const y = e.clientY / window.innerHeight - 0.5;
-      setMousePos({ x, y });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, []);
-
   // Scroll Trigger Observers for each section
   const [showFriction, setShowFriction] = useState(false);
   const frictionSectionRef = useRef<HTMLDivElement>(null);
@@ -107,6 +75,9 @@ export default function Home() {
   const [showCTA, setShowCTA] = useState(false);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
 
+  const [showSolarSystem, setShowSolarSystem] = useState(false);
+  const solarSystemSectionRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const observerOptions = { threshold: 0.1 };
 
@@ -117,6 +88,7 @@ export default function Home() {
       { ref: autoCategorizationSectionRef, set: setShowAutoCategorization },
       { ref: faqSectionRef, set: setShowFAQ },
       { ref: ctaSectionRef, set: setShowCTA },
+      { ref: solarSystemSectionRef, set: setShowSolarSystem },
     ];
 
     const activeObservers = elements.map(({ ref, set }) => {
@@ -172,12 +144,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-[#1c1c16] dark:text-[#dddad0] relative overflow-x-hidden selection:bg-[#E36A6A]/20 selection:text-[#a0383b] transition-colors duration-300">
+    <div className="min-h-screen bg-background text-on-background relative overflow-x-clip transition-colors duration-300">
       
-      {/* 1. Hero / Header Area */}
-      <Hero
-        typedText={typedText}
-        mousePos={mousePos}
+      {/* 1. Hero / Header Area with Frame Scroll Animation */}
+      <ScrollFrameHero
         scrollToFriction={scrollToFriction}
         scrollToHowItWorks={scrollToHowItWorks}
         scrollToFeatures={scrollToFeatures}
@@ -231,22 +201,32 @@ export default function Home() {
         sectionRef={ctaSectionRef}
       />
 
-      {/* Premium Multi-column SaaS Footer */}
-      <footer className="bg-[#f7f3e9] dark:bg-[#151512] text-[#564241] dark:text-[#c7c4ba] py-16 border-t border-[#ddc0be]/30 dark:border-white/5 relative z-10 transition-colors duration-300">
+      {/* 8. Solar System Section */}
+      <SolarSystem
+        showSolarSystem={showSolarSystem}
+        sectionRef={solarSystemSectionRef}
+      />
+
+      {/* Premium Multi-column Neumorphic SaaS Footer */}
+      <footer className="bg-background text-on-surface-variant dark:text-white/70 py-16 border-t border-outline-variant/20 dark:border-white/5 relative z-10 transition-colors duration-300">
         <div className="max-w-[1200px] mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12">
             {/* Column 1: Brand details */}
             <div className="lg:col-span-5 flex flex-col items-start gap-4">
               <div className="flex items-center gap-2.5">
-                <img
-                  src="/logo.jpg"
-                  alt="Cerebellum AI Logo"
-                  className="w-8 h-8 rounded-full object-cover border border-[#ddc0be]/30 dark:border-white/10"
-                />
+                <div className="rounded-full p-0.5 neu-raised-sm">
+                  <Image
+                    src="/logo.jpg"
+                    alt="Cerebellum AI Logo"
+                    width={32}
+                    height={32}
+                    className="rounded-full object-cover"
+                  />
+                </div>
                 <span className="font-bold text-base text-text-rich dark:text-white tracking-tight">
                   Cerebellum AI
                 </span>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#E36A6A]/10 text-primary dark:text-[#ffb3b1] uppercase tracking-wider">
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full neu-sunken-sm text-primary dark:text-[#ffb4b4] uppercase tracking-wider">
                   Second Brain
                 </span>
               </div>
@@ -262,22 +242,22 @@ export default function Home() {
               <h4 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider">Product</h4>
               <ul className="flex flex-col gap-2.5 text-xs font-semibold">
                 <li>
-                  <button onClick={scrollToFeatures} className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors text-left cursor-pointer">
+                  <button onClick={scrollToFeatures} className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors text-left cursor-pointer">
                     Features
                   </button>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     Chrome Extension
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     Safari Extension
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     Pricing Plans
                   </a>
                 </li>
@@ -289,22 +269,22 @@ export default function Home() {
               <h4 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider">Resources</h4>
               <ul className="flex flex-col gap-2.5 text-xs font-semibold">
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     Documentation
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     API Reference
                   </a>
                 </li>
                 <li>
-                  <button onClick={scrollToFAQ} className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors text-left cursor-pointer">
+                  <button onClick={scrollToFAQ} className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors text-left cursor-pointer">
                     FAQ Accordion
                   </button>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     Release Notes
                   </a>
                 </li>
@@ -316,22 +296,22 @@ export default function Home() {
               <h4 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider">Company</h4>
               <ul className="flex flex-col gap-2.5 text-xs font-semibold">
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     Privacy Policy
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     Terms of Service
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+                  <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                     Discord Community
                   </a>
                 </li>
@@ -339,18 +319,18 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="border-t border-[#ddc0be]/30 dark:border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] font-medium text-[#8a7170] dark:text-[#8a7170]/70">
+          <div className="border-t border-outline-variant/20 dark:border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-[11px] font-medium text-on-surface-variant/70 dark:text-white/50">
               &copy; {new Date().getFullYear()} Cerebellum AI Inc. All rights reserved.
             </p>
-            <div className="flex items-center gap-4 text-xs font-semibold text-[#8a7170] dark:text-[#8a7170]/70">
-              <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+            <div className="flex items-center gap-4 text-xs font-semibold text-on-surface-variant/70 dark:text-white/50">
+              <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                 Twitter
               </a>
-              <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+              <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                 GitHub
               </a>
-              <a href="#" className="hover:text-primary dark:hover:text-[#ffb3b1] transition-colors">
+              <a href="#" className="hover:text-primary dark:hover:text-[#ffb4b4] transition-colors">
                 Discord
               </a>
             </div>
@@ -360,3 +340,4 @@ export default function Home() {
     </div>
   );
 }
+
