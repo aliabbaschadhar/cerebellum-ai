@@ -4,15 +4,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import Hero from "./Hero";
 import Navbar from "./Navbar";
 
-interface ScrollFrameHeroProps {
-  scrollToFriction: () => void;
-  scrollToHowItWorks: () => void;
-  scrollToFeatures: () => void;
-  scrollToFAQ: () => void;
-  navigateToApp: () => void;
-  isDarkMode: boolean;
-  setIsDarkMode: (dark: boolean) => void;
-}
+import type { ScrollFrameHeroProps } from "@/types";
 
 export default function ScrollFrameHero({
   scrollToFriction,
@@ -115,7 +107,6 @@ export default function ScrollFrameHero({
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.drawImage(activeImg, offsetX, offsetY, drawWidth, drawHeight);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle scroll and resize
@@ -157,7 +148,7 @@ export default function ScrollFrameHero({
 
   useEffect(() => {
     drawFrame();
-  }, [scrollProgress, loadedCount]);
+  }, [drawFrame, scrollProgress, loadedCount]);
 
   const heroOpacity = Math.max(0, 1 - scrollProgress * 4.2);
   const heroTransform = `translateY(${scrollProgress * -50}px)`;

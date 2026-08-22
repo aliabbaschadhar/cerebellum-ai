@@ -1,12 +1,8 @@
 "use client";
 
 import JSZip from "jszip";
-import type { LinkData } from "@/app/page";
+import type { SyncTabProps } from "@/types";
 import { getLinkTags } from "@/lib/tagUtils";
-
-interface SyncTabProps {
-  links: LinkData[];
-}
 
 export default function SyncTab({ links }: SyncTabProps) {
   async function handleExportObsidian() {

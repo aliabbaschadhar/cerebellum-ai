@@ -13,10 +13,7 @@ interface HeroProps {
 }
 
 export default function Hero({
-  scrollToFriction,
   scrollToHowItWorks,
-  scrollToFeatures,
-  scrollToFAQ,
   navigateToApp,
 }: HeroProps) {
   return (

@@ -2,51 +2,20 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  Home,
-  Database,
-  Folder,
-  Network,
-  BookOpen,
-  RefreshCw,
   LogOut,
   Sun,
   Moon,
   Settings,
-  Sparkles,
   Trash2,
   PanelLeftClose,
-  Search,
   Plus,
   MessageSquare,
 } from "lucide-react";
-import type { ChatSession } from "@/app/app/page";
-
-export type TabType =
-  | "home"
-  | "chat"
-  | "vault"
-  | "collections"
-  | "graph"
-  | "reader"
-  | "sync"
-  | "settings";
-
-interface SidebarProps {
-  activeTab: TabType;
-  setActiveTab: (tab: TabType) => void;
-  isDarkMode: boolean;
-  setIsDarkMode: (dark: boolean) => void;
-  activeSessionId: string | null;
-  setActiveSessionId: (id: string | null) => void;
-  sessions: ChatSession[];
-  setSessions: React.Dispatch<React.SetStateAction<ChatSession[]>>;
-  fetchSessions: () => Promise<void>;
-  isSessionsLoading: boolean;
-  isCollapsed: boolean;
-  setIsCollapsed: (collapsed: boolean) => void;
-  profile: { name: string; email: string; cachePath: string; avatarUrl?: string };
-}
+import type { SidebarProps, TabType } from "@/types";
+import { SIDEBAR_NAV_ITEMS } from "@/lib/dashboardData";
+export type { TabType, SidebarProps };
 
 export default function Sidebar({
   activeTab,
@@ -111,10 +80,12 @@ export default function Sidebar({
         <div className="flex items-center justify-between border-b border-outline-variant/20 dark:border-white/10 pb-3">
           <Link href="/" className="flex items-center gap-2 pr-2 group">
             <div className="rounded-full p-0.5 neu-raised-sm group-hover:scale-105 transition-transform">
-              <img
-                src="/logo.jpg"
+              <Image
+                src="/newlogo.png"
                 alt="Cerebellum AI Logo"
-                className="w-7 h-7 rounded-full object-cover"
+                width={28}
+                height={28}
+                className="w-7 h-7 rounded-full object-cover bg-white"
               />
             </div>
             <span className="font-bold text-sm text-text-rich dark:text-white tracking-tight">
@@ -144,15 +115,7 @@ export default function Sidebar({
 
         {/* Navigation Tabs */}
         <nav className="flex flex-col gap-1.5 overflow-y-auto max-h-[40%] scrollbar-none">
-          {[
-            { id: "home", label: "Home", icon: Home },
-            { id: "chat", label: "Cerebellum AI", icon: Sparkles },
-            { id: "vault", label: "Memory Vault", icon: Database },
-            { id: "collections", label: "Collections", icon: Folder },
-            { id: "graph", label: "Graph Navigator", icon: Network },
-            { id: "reader", label: "Reader Mode", icon: BookOpen },
-            { id: "sync", label: "Sync & Export", icon: RefreshCw },
-          ].map((tab) => {
+          {SIDEBAR_NAV_ITEMS.map((tab) => {
             const IconComponent = tab.icon;
             const isActive = activeTab === tab.id && (tab.id !== "chat" || !activeSessionId);
             return (
@@ -240,9 +203,12 @@ export default function Sidebar({
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Dynamic Profile Avatar */}
             {profile.avatarUrl ? (
-              <img
+              <Image
                 src={profile.avatarUrl}
                 alt={profile.name}
+                width={34}
+                height={34}
+                unoptimized
                 className="w-8.5 h-8.5 rounded-full object-cover shrink-0 neu-raised-sm border border-white/20"
               />
             ) : (

@@ -97,7 +97,7 @@ async function fetchTwitter(url: string): Promise<LinkMetadata> {
         },
       };
     }
-  } catch (err) {}
+  } catch {}
 
   // Fallback to oEmbed if vxtwitter fails
   const oembedUrl = `https://publish.twitter.com/oembed?url=${encodeURIComponent(url)}&omit_script=true`;
@@ -164,7 +164,7 @@ async function fetchReddit(url: string): Promise<LinkMetadata> {
         }
       }
     }
-  } catch (err) {}
+  } catch {}
 
   return {
     ...base,
@@ -293,7 +293,7 @@ async function scrapeOpenGraph(
       siteName,
       extras: null,
     };
-  } catch (err) {
+  } catch {
     // Return graceful fallback on fetch failure
     let fallbackTitle = null;
     if (platform === "linkedin") {

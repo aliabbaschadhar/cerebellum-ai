@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { LinkData } from "@/app/page";
-
-interface ReaderTabProps {
-  links: LinkData[];
-}
+import type { ReaderTabProps } from "@/types";
 
 export default function ReaderTab({ links }: ReaderTabProps) {
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(
@@ -22,7 +18,7 @@ export default function ReaderTab({ links }: ReaderTabProps) {
         <h3 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider pl-1">
           Article Index
         </h3>
-        <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1">
+        <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1 scrollbar-none">
           {links.length === 0 ? (
             <p className="text-xs text-on-surface-variant/80 dark:text-white/50 pl-1 italic">
               No articles saved.

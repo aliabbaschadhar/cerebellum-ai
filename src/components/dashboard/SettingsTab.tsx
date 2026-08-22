@@ -1,14 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Camera, Trash2, User } from "lucide-react";
+import Image from "next/image";
+import { Camera, User } from "lucide-react";
 
-interface SettingsTabProps {
-  profile: { name: string; email: string; cachePath: string; avatarUrl?: string };
-  setProfile: React.Dispatch<
-    React.SetStateAction<{ name: string; email: string; cachePath: string; avatarUrl?: string }>
-  >;
-}
+import type { SettingsTabProps } from "@/types";
 
 export default function SettingsTab({ profile, setProfile }: SettingsTabProps) {
   const [profileName, setProfileName] = useState(profile.name);
@@ -79,10 +75,12 @@ export default function SettingsTab({ profile, setProfile }: SettingsTabProps) {
                  onClick={() => fileInputRef.current?.click()}>
               <div className="relative w-full h-full rounded-full neu-sunken overflow-hidden flex items-center justify-center text-3xl font-bold">
                 {profileAvatarUrl ? (
-                  <img
+                  <Image
                     src={profileAvatarUrl}
                     alt={profileName}
-                    className="w-full h-full object-cover rounded-full"
+                    fill
+                    unoptimized
+                    className="object-cover rounded-full"
                   />
                 ) : (
                   <User className="w-12 h-12 text-on-surface-variant/60 dark:text-white/50" />

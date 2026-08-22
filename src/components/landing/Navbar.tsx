@@ -1,17 +1,7 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Image from "next/image";
 
-interface NavbarProps {
-  scrollToFriction: () => void;
-  scrollToHowItWorks: () => void;
-  scrollToFeatures: () => void;
-  scrollToFAQ: () => void;
-  navigateToApp: () => void;
-  isDarkMode: boolean;
-  setIsDarkMode: (dark: boolean) => void;
-}
+import type { NavbarProps } from "@/types";
 
 export default function Navbar({
   scrollToFriction,
@@ -22,16 +12,6 @@ export default function Navbar({
   isDarkMode,
   setIsDarkMode,
 }: NavbarProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <div className="w-full fixed top-4 left-0 right-0 z-50 px-4 pointer-events-none">
@@ -43,11 +23,11 @@ export default function Navbar({
         >
           <div className="rounded-full p-0.5 neu-raised-sm group-hover:scale-105 transition-transform duration-200">
             <Image
-              src="/logo.jpg"
+              src="/newlogo.png"
               alt="Cerebellum AI Logo"
               width={34}
               height={34}
-              className="rounded-full object-cover"
+              className="rounded-full object-cover bg-white"
             />
           </div>
           <div className="flex items-center gap-1.5">

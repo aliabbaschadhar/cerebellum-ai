@@ -1,17 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import type { LinkData } from "@/app/page";
+import { useState } from "react";
+import type { HomeTabProps } from "@/types";
 import LinkCard from "@/components/LinkCard";
-
-interface HomeTabProps {
-  links: LinkData[];
-  onLinkAdded: (link: LinkData) => void;
-  onDeleted: (id: string) => void;
-  isPending: boolean;
-  profile: { name: string; email: string; cachePath: string; avatarUrl?: string };
-  onSearchTriggered: (query: string) => void;
-}
 
 export default function HomeTab({
   links,
@@ -26,9 +17,6 @@ export default function HomeTab({
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResult, setSearchResult] = useState<string | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [, startTransition] = useTransition();
 
   // Handle URL link saving
   async function handleAddLink(e: React.FormEvent) {
@@ -166,24 +154,6 @@ export default function HomeTab({
             Ask AI
           </button>
         </div>
-
-        {isSearching && (
-          <div className="flex items-center justify-center py-6 gap-2 text-xs font-bold text-primary">
-            <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-            Scanning semantic neural indexes...
-          </div>
-        )}
-
-        {searchResult && (
-          <div className="p-6 rounded-3xl neu-sunken text-left text-xs">
-            <p className="font-bold text-[10.5px] uppercase tracking-wider text-primary mb-3 border-b border-outline-variant/20 dark:border-white/10 pb-1.5">
-              Neural Compiler Synthesis
-            </p>
-            <pre className="font-sans whitespace-pre-wrap leading-relaxed text-text-rich dark:text-white font-medium">
-              {searchResult}
-            </pre>
-          </div>
-        )}
       </div>
 
       {/* Recently Saved Link Grid */}

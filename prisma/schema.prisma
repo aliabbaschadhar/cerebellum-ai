@@ -4,14 +4,12 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider        = "prisma-client"
-  output          = "../src/generated/prisma"
-  previewFeatures = ["postgresqlExtensions"]
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider   = "postgresql"
-  extensions = [pgvector(map: "vector"), prisma_postgres]
+  provider = "postgresql"
 }
 
 model Link {
@@ -35,7 +33,7 @@ model LinkEmbedding {
   id        String   @id @default(cuid())
   linkId    String   @unique
   link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  vector    Unsupported("vector(384)")
+  vector    String?
 }
 
 enum ChatRole {

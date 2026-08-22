@@ -2,11 +2,7 @@
 
 import React from "react";
 
-interface CTAProps {
-  showCTA: boolean;
-  navigateToApp: () => void;
-  sectionRef: React.RefObject<HTMLDivElement | null>;
-}
+import type { CTAProps } from "@/types";
 
 export default function CTA({ showCTA, navigateToApp, sectionRef }: CTAProps) {
   return (

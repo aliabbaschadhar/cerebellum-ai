@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import type { LinkData } from "@/app/page";
+import type { LinkData, ChatSession, UserProfile, TabType } from "@/types";
 import { PanelLeftOpen } from "lucide-react";
 
 // Extracted Sub-sections & Panels
-import Sidebar, { TabType } from "@/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/Sidebar";
 import HomeTab from "@/components/dashboard/HomeTab";
 import VaultTab from "@/components/dashboard/VaultTab";
 import CollectionsTab from "@/components/dashboard/CollectionsTab";
@@ -15,18 +15,7 @@ import SyncTab from "@/components/dashboard/SyncTab";
 import SettingsTab from "@/components/dashboard/SettingsTab";
 import ChatTab from "@/components/dashboard/ChatTab";
 
-export interface ChatSession {
-  id: string;
-  title: string;
-  createdAt: string;
-}
-
-export interface UserProfile {
-  name: string;
-  email: string;
-  cachePath: string;
-  avatarUrl?: string;
-}
+export type { ChatSession, UserProfile };
 
 export default function DashboardPage() {
   const [links, setLinks] = useState<LinkData[]>([]);

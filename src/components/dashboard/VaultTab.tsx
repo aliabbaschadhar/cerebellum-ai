@@ -1,13 +1,7 @@
 "use client";
 
-import type { LinkData } from "@/app/page";
+import type { VaultTabProps } from "@/types";
 import LinkCard from "@/components/LinkCard";
-
-interface VaultTabProps {
-  links: LinkData[];
-  onDeleted: (id: string) => void;
-  isPending: boolean;
-}
 
 export default function VaultTab({
   links,

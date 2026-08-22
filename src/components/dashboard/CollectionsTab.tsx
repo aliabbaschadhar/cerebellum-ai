@@ -1,15 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { LinkData } from "@/app/page";
+import type { CollectionsTabProps } from "@/types";
+import { COLLECTION_SOURCE_TABS } from "@/lib/dashboardData";
 import LinkCard from "@/components/LinkCard";
 import { AVAILABLE_TAGS, getLinkTags, type FolderType } from "@/lib/tagUtils";
-
-interface CollectionsTabProps {
-  links: LinkData[];
-  onDeleted: (id: string) => void;
-  isPending: boolean;
-}
 
 export default function CollectionsTab({
   links,
@@ -52,9 +47,9 @@ export default function CollectionsTab({
     });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       {/* Left Folder Directory List */}
-      <div className="lg:col-span-4 neu-card rounded-3xl p-5 flex flex-col gap-4">
+      <div className="lg:col-span-4 neu-card-static rounded-3xl p-5 flex flex-col gap-4 h-fit">
         <div>
           <h3 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider pl-1">
             Directories
@@ -64,7 +59,7 @@ export default function CollectionsTab({
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto scrollbar-none pr-1">
+        <div className="flex flex-col gap-2">
           {(["All", "Inbox", ...AVAILABLE_TAGS] as const).map((folder) => (
             <button
               key={folder}
@@ -117,14 +112,7 @@ export default function CollectionsTab({
 
           {/* Source tabs filter */}
           <div className="flex flex-wrap gap-1.5">
-            {[
-              { id: null, label: "All Sources" },
-              { id: "youtube", label: "YouTube" },
-              { id: "twitter", label: "Twitter / X" },
-              { id: "instagram", label: "Instagram" },
-              { id: "tiktok", label: "TikTok" },
-              { id: "web", label: "Web / Article" },
-            ].map((item) => (
+            {COLLECTION_SOURCE_TABS.map((item) => (
               <button
                 key={item.id ?? "all"}
                 onClick={() => setSelectedPlatformFilter(item.id)}

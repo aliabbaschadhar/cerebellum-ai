@@ -2,11 +2,7 @@
 
 import React from "react";
 
-interface FrictionProps {
-  showFriction: boolean;
-  frictionProgress: number;
-  sectionRef: React.RefObject<HTMLDivElement | null>;
-}
+import type { FrictionProps } from "@/types";
 
 export default function Friction({
   showFriction,

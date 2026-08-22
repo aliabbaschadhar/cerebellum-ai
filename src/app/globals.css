@@ -378,6 +378,12 @@ body {
   transform: translateY(-2px);
 }
 
+.neu-card-static {
+  background: var(--color-background);
+  box-shadow: 4px 4px 12px var(--neu-shadow-dark), -2px -2px 8px var(--neu-shadow-light);
+  border: none;
+}
+
 .neu-nav {
   background: var(--color-background);
   box-shadow: var(--neu-shadow-hover);

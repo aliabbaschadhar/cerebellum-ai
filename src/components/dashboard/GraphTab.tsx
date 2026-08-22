@@ -1,15 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { LinkData } from "@/app/page";
+import type { GraphTabProps } from "@/types";
 import { useForceGraph } from "@/hooks/useForceGraph";
 import { getLinkTags } from "@/lib/tagUtils";
 import CustomSelect, { CustomSelectOption } from "@/components/ui/CustomSelect";
-
-interface GraphTabProps {
-  links: LinkData[];
-  isDarkMode: boolean;
-}
 
 const NODE_TYPE_OPTIONS: CustomSelectOption[] = [
   { value: "youtube", label: "YouTube" },

@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import {
   Sparkles,
   Send,
-  Brain,
   Bot,
   User,
   ArrowRight,
@@ -15,16 +15,7 @@ import {
   X,
 } from "lucide-react";
 import LinkCard from "@/components/LinkCard";
-import type { LinkData } from "@/app/page";
-
-interface ChatTabProps {
-  links: LinkData[];
-  activeSessionId: string | null;
-  setActiveSessionId: (id: string | null) => void;
-  fetchSessions: () => Promise<void>;
-  pendingChatQuery: string | null;
-  clearPendingChatQuery: () => void;
-}
+import type { ChatTabProps } from "@/types";
 
 export default function ChatTab({
   links,
@@ -41,42 +32,44 @@ export default function ChatTab({
   // Guard ref to prevent race condition when active stream auto-creates a session ID
   const shouldSkipNextFetchRef = useRef(false);
 
-  // Ref to avoid closure stale state in customFetch
-  const activeSessionIdRef = useRef(activeSessionId);
-  useEffect(() => {
-    activeSessionIdRef.current = activeSessionId;
-  }, [activeSessionId]);
+  const transport = React.useMemo(
+    () =>
+      // eslint-disable-next-line react-hooks/refs
+      new DefaultChatTransport({
+        api: "/api/chat",
+        fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+          const response = await fetch(input, init);
+          const noMemories = response.headers.get("X-No-Memories-Found");
+          const searchQuery = response.headers.get("X-Search-Query");
+          const newSessionId = response.headers.get("X-Session-Id");
 
-  // Custom fetch middleware to intercept response headers from the transport
-  const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const response = await fetch(input, init);
-    const noMemories = response.headers.get("X-No-Memories-Found");
-    const searchQuery = response.headers.get("X-Search-Query");
-    const newSessionId = response.headers.get("X-Session-Id");
-    
-    if (newSessionId && newSessionId !== activeSessionIdRef.current) {
-      console.log(`[Chat UI Middleware] Found new X-Session-Id: "${newSessionId}". Syncing state.`);
-      shouldSkipNextFetchRef.current = true; // Raise the guard
-      setActiveSessionId(newSessionId);
-      fetchSessions();
-    }
+          if (newSessionId && newSessionId !== activeSessionId) {
+            console.log(
+              `[Chat UI Middleware] Found new X-Session-Id: "${newSessionId}". Syncing state.`
+            );
+            shouldSkipNextFetchRef.current = true; // Raise the guard
+            setActiveSessionId(newSessionId);
+            fetchSessions();
+          }
 
-    if (noMemories === "true" && searchQuery) {
-      console.log(`[Chat UI Middleware] Detected empty/low relevance. Query: "${searchQuery}"`);
-      setPendingSearchQuery(searchQuery);
-      setTimeout(() => {
-        setShowSearchPopup(true);
-      }, 1500);
-    }
-    return response;
-  };
+          if (noMemories === "true" && searchQuery) {
+            console.log(
+              `[Chat UI Middleware] Detected empty/low relevance. Query: "${searchQuery}"`
+            );
+            setPendingSearchQuery(searchQuery);
+            setTimeout(() => {
+              setShowSearchPopup(true);
+            }, 1500);
+          }
+          return response;
+        },
+      }),
+    [activeSessionId, setActiveSessionId, fetchSessions],
+  );
 
   // useChat Hook utilizing DefaultChatTransport with our custom fetch middleware
   const { messages, sendMessage, status, setMessages, stop } = useChat({
-    transport: new DefaultChatTransport({ 
-      api: "/api/chat",
-      fetch: customFetch
-    }),
+    transport,
   });
 
   // Effect to load messages when activeSessionId changes (guarded against active stream updates)
@@ -93,7 +86,14 @@ export default function ChatTab({
           const res = await fetch(`/api/chats/${activeSessionId}`);
           if (res.ok) {
             const data = await res.json();
-            const formatted = data.map((msg: any) => {
+            const formatted = data.map(
+              (msg: {
+                id: string;
+                role: string;
+                referenceIds?: string[];
+                content: string;
+                createdAt: string;
+              }) => {
               const referencesLine = msg.referenceIds && msg.referenceIds.length > 0
                 ? `\n\nREFERENCES: [${msg.referenceIds.join(", ")}]`
                 : "";
@@ -145,10 +145,13 @@ export default function ChatTab({
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+    let initTimer: NodeJS.Timeout;
     if (isLoading) {
-      setLoadingStep(1);
-      loadingStepRef.current = 1;
-      
+      initTimer = setTimeout(() => {
+        setLoadingStep(1);
+        loadingStepRef.current = 1;
+      }, 0);
+
       timer = setInterval(() => {
         if (loadingStepRef.current === 1) {
           setLoadingStep(2);
@@ -159,11 +162,14 @@ export default function ChatTab({
         }
       }, 900);
     } else {
-      setLoadingStep(0);
-      loadingStepRef.current = 0;
+      initTimer = setTimeout(() => {
+        setLoadingStep(0);
+        loadingStepRef.current = 0;
+      }, 0);
     }
 
     return () => {
+      clearTimeout(initTimer);
       clearInterval(timer);
     };
   }, [isLoading]);
@@ -189,13 +195,13 @@ export default function ChatTab({
     },
   ];
 
-  const getMessageText = (message: any) => {
+  const getMessageText = (message: { content?: string; parts?: Array<{ type: string; text?: string }> } | null | undefined) => {
     if (!message) return "";
     if (typeof message.content === "string" && message.content) return message.content;
     if (Array.isArray(message.parts)) {
       return message.parts
-        .filter((part: any) => part.type === "text")
-        .map((part: any) => part.text)
+        .filter((part: { type: string; text?: string }) => part.type === "text")
+        .map((part: { type: string; text?: string }) => part.text || "")
         .join("");
     }
     return "";
@@ -313,7 +319,7 @@ export default function ChatTab({
     return (
       <div className="mt-4 pt-4 border-t border-outline-variant/20 dark:border-white/10 flex flex-col gap-3">
         <div className="flex items-center gap-1.5 text-primary">
-          <Brain className="w-3.5 h-3.5" />
+          <Sparkles className="w-3.5 h-3.5" />
           <span className="text-[10px] font-bold tracking-widest uppercase">
             Retrieved Memories ({matchedMemories.length})
           </span>
@@ -333,31 +339,20 @@ export default function ChatTab({
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] max-w-4xl mx-auto relative select-none">
-      {/* Header Area */}
-      <div className="flex items-center justify-between border-b border-outline-variant/20 dark:border-white/10 pb-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl neu-raised flex items-center justify-center text-primary">
-            <Sparkles className="w-5 h-5 animate-pulse" />
-          </div>
-          <div className="text-left">
-            <h1 className="font-display text-lg font-bold text-text-rich dark:text-white leading-tight">
-              Cerebellum AI Assistant
-            </h1>
-            <p className="text-xs font-medium text-on-surface-variant dark:text-white/60">
-              Query your second brain index using conversational AI
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Messages viewport */}
       <div className="flex-1 overflow-y-auto pr-2 pb-6 flex flex-col gap-6 scrollbar-thin select-text">
         {messages.length === 0 ? (
           // Empty State Suggestions
-          <div className="flex-1 flex flex-col items-center justify-center max-w-lg mx-auto text-center gap-8 py-10 animate-in fade-in">
+          <div className="flex-1 flex flex-col items-center justify-center max-w-lg mx-auto text-center gap-8 py-6 -mt-10 animate-in fade-in">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full neu-raised flex items-center justify-center text-primary">
-                <Brain className="w-8 h-8" />
+              <div className="w-16 h-16 rounded-full neu-raised flex items-center justify-center p-1 bg-white">
+                <Image
+                  src="/newlogo.png"
+                  alt="Cerebellum AI Logo"
+                  width={56}
+                  height={56}
+                  className="w-14 h-14 rounded-full object-cover"
+                />
               </div>
               <h2 className="text-base font-bold text-text-rich dark:text-white">
                 How can Cerebellum assist you today?
@@ -471,7 +466,7 @@ export default function ChatTab({
       </div>
 
       {/* Input Textbox Form */}
-      <div className="mt-auto border-t border-outline-variant/20 dark:border-white/10 pt-5 pb-4 bg-background sticky bottom-0 z-20">
+      <div className="mt-auto border-t border-outline-variant/20 dark:border-white/10 pt-4 pb-6 mb-14 bg-background sticky bottom-10 z-20">
         <form onSubmit={handleSubmit} className="relative flex items-center neu-sunken rounded-2xl p-1">
           <input
             type="text"

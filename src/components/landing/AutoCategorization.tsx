@@ -2,14 +2,7 @@
 
 import React from "react";
 
-interface AutoCategorizationProps {
-  showAutoCategorization: boolean;
-  activeFolder: "Design" | "Research" | "Growth" | "Mindset";
-  setActiveFolder: (
-    folder: "Design" | "Research" | "Growth" | "Mindset",
-  ) => void;
-  sectionRef: React.RefObject<HTMLDivElement | null>;
-}
+import type { AutoCategorizationProps } from "@/types";
 
 export default function AutoCategorization({
   showAutoCategorization,

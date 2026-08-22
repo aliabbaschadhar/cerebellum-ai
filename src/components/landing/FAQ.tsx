@@ -2,12 +2,8 @@
 
 import React from "react";
 
-interface FAQProps {
-  showFAQ: boolean;
-  expandedFaq: number | null;
-  setExpandedFaq: (idx: number | null) => void;
-  sectionRef: React.RefObject<HTMLDivElement | null>;
-}
+import type { FAQProps } from "@/types";
+import { FAQ_ITEMS } from "@/lib/landingData";
 
 export default function FAQ({
   showFAQ,
@@ -15,28 +11,7 @@ export default function FAQ({
   setExpandedFaq,
   sectionRef,
 }: FAQProps) {
-  const faqs = [
-    {
-      q: "How does the AI search work?",
-      a: "Cerebellum processes your query semantically, meaning it searches for concepts, meanings, and ideas rather than exact keyword string matches. It reads through full articles and video transcripts to provide relevant answers.",
-    },
-    {
-      q: "Does it support video and audio transcription?",
-      a: "Yes. When you save a YouTube video link or a podcast URL, our backend compiler transcribes the audio tracks in real-time, allowing you to index and search quote timings directly.",
-    },
-    {
-      q: "Is my personal data secure and private?",
-      a: "Absolutely. All indexations and saved summaries are strictly encrypted and visible only to you. We do not sell user data or share personal summaries with external LLM models.",
-    },
-    {
-      q: "Can I import bookmarks from Safari or Chrome?",
-      a: "Yes, you can upload standard HTML bookmark sheets directly via the web dashboard workspace, importing your historical database in one click.",
-    },
-    {
-      q: "What platforms does the extension support?",
-      a: "We currently support Chrome, Brave, Safari (Mac & iOS), and Firefox browsers. You can also save links using Apple Shortcuts via the iOS share sheet.",
-    },
-  ];
+  const faqs = FAQ_ITEMS;
 
   return (
     <section

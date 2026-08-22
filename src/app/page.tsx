@@ -15,34 +15,19 @@ import FAQ from "@/components/landing/FAQ";
 import CTA from "@/components/landing/CTA";
 import SolarSystem from "@/components/landing/SolarSystem";
 
-export interface LinkData {
-  id: string;
-  url: string;
-  platform: string;
-  title: string | null;
-  description: string | null;
-  image: string | null;
-  favicon: string | null;
-  siteName: string | null;
-  extras: Record<string, string | null> | null;
-  aiContext: string | null;
-  createdAt: string;
-}
+import type { LinkData } from "@/types";
+export type { LinkData };
 
 export default function Home() {
   const router = useRouter();
 
-  // Persistent Dark Mode Theme State
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Initialize theme from localStorage, defaulting to light mode
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const timer = setTimeout(() => {
-      setIsDarkMode(savedTheme === "dark");
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
+  // Persistent Dark Mode Theme State initialized lazily from localStorage
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("theme") === "dark";
+    }
+    return false;
+  });
 
   // Update theme classes on document changes
   useEffect(() => {
@@ -121,11 +106,6 @@ export default function Home() {
   const { progress: frictionProgress } = useScrollProgress(frictionSectionRef);
   const { progress: howItWorksProgress, velocity: howItWorksVelocity } =
     useScrollProgress(howItWorksSectionRef);
-  const { progress: featuresProgress } = useScrollProgress(featuresSectionRef);
-  const { progress: autoCatProgress } = useScrollProgress(
-    autoCategorizationSectionRef,
-  );
-  const { progress: ctaProgress } = useScrollProgress(ctaSectionRef);
 
   const scrollToFriction = () => {
     frictionSectionRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -145,7 +125,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-on-background relative overflow-x-clip transition-colors duration-300">
-      
       {/* 1. Hero / Header Area with Frame Scroll Animation */}
       <ScrollFrameHero
         scrollToFriction={scrollToFriction}
@@ -216,11 +195,11 @@ export default function Home() {
               <div className="flex items-center gap-2.5">
                 <div className="rounded-full p-0.5 neu-raised-sm">
                   <Image
-                    src="/logo.jpg"
+                    src="/newlogo.png"
                     alt="Cerebellum AI Logo"
                     width={32}
                     height={32}
-                    className="rounded-full object-cover"
+                    className="rounded-full object-cover bg-white"
                   />
                 </div>
                 <span className="font-bold text-base text-text-rich dark:text-white tracking-tight">

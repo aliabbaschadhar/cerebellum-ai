@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import type { LinkData } from "@/app/page";
 import { ExternalLink, Copy, Check, Trash2 } from "lucide-react";
 
@@ -150,9 +151,11 @@ export default function LinkCard({ link, onDeleted, disabled, isFeatured }: Prop
         {/* Left Side: Full-Height Media Preview Window */}
         <div className="w-full md:w-[42%] h-36 md:h-full relative overflow-hidden shrink-0 neu-sunken border-b md:border-b-0 md:border-r border-outline-variant/15 dark:border-white/10">
           {link.image ? (
-            <img
+            <Image
               src={link.image}
               alt={cardTitle}
+              fill
+              unoptimized
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
@@ -266,10 +269,12 @@ export default function LinkCard({ link, onDeleted, disabled, isFeatured }: Prop
       {/* 2. Recessed Sunken Media Window (130px) */}
       <div className="h-[130px] w-full relative overflow-hidden shrink-0 neu-sunken border-b border-outline-variant/15 dark:border-white/5">
         {link.image ? (
-          <img
+          <Image
             src={link.image}
             alt={cardTitle}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            fill
+            unoptimized
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${config.gradient} flex items-center justify-center relative overflow-hidden p-4`}>
