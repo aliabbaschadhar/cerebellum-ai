@@ -1,18 +1,31 @@
-// Create and inject the floating widget
+// Create and inject the floating widget with warm Neumorphic styling
 function injectFloatingWidget() {
   if (document.getElementById("cerebellum-widget-container")) return;
 
   const container = document.createElement("div");
   container.id = "cerebellum-widget-container";
   
-  // Create Icon Wrapper
+  // Create Icon Tab Wrapper
   const iconWrapper = document.createElement("div");
   iconWrapper.className = "cerebellum-icon-wrapper";
+  iconWrapper.title = "Save to Cerebellum AI";
   iconWrapper.innerHTML = `
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a4 4 0 0 1 4 4v2h2.5A2.5 2.5 0 0 1 21 10.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-8A2.5 2.5 0 0 1 5.5 8H8V6a4 4 0 0 1 4-4z"></path>
+      <circle cx="12" cy="14" r="2"></circle>
+      <path d="M12 16v2"></path>
     </svg>
   `;
+
+  // Toggle open state on tab click
+  iconWrapper.addEventListener("click", (e) => {
+    e.stopPropagation();
+    container.classList.toggle("open");
+    if (container.classList.contains("open")) {
+      const descInput = document.getElementById("cerebellum-desc-input");
+      if (descInput) descInput.focus();
+    }
+  });
 
   // Create Panel
   const panel = document.createElement("div");
@@ -26,19 +39,32 @@ function injectFloatingWidget() {
   const header = document.createElement("div");
   header.className = "cerebellum-header";
   header.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="12" y1="8" x2="12" y2="16"></line>
-      <line x1="8" y1="12" x2="16" y2="12"></line>
-    </svg>
-    Save to Cerebrum
+    <div class="cerebellum-brand-wrapper">
+      <div class="cerebellum-header-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a4 4 0 0 1 4 4v2h2.5A2.5 2.5 0 0 1 21 10.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-8A2.5 2.5 0 0 1 5.5 8H8V6a4 4 0 0 1 4-4z"></path>
+          <circle cx="12" cy="14" r="2"></circle>
+          <path d="M12 16v2"></path>
+        </svg>
+      </div>
+      <div>
+        <div class="cerebellum-title">Cerebellum AI</div>
+        <div class="cerebellum-subtitle">Page Clipper</div>
+      </div>
+    </div>
+    <button class="cerebellum-close-btn" id="cerebellum-close-panel" title="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
   `;
 
   // Link Input Group
   const linkGroup = document.createElement("div");
   linkGroup.className = "cerebellum-input-group";
   const linkLabel = document.createElement("label");
-  linkLabel.innerText = "Link";
+  linkLabel.innerText = "Target Link";
   const linkInput = document.createElement("input");
   linkInput.type = "text";
   linkInput.className = "cerebellum-input";
@@ -47,15 +73,15 @@ function injectFloatingWidget() {
   linkGroup.appendChild(linkLabel);
   linkGroup.appendChild(linkInput);
 
-  // Description Input Group
+  // Description / Notes Input Group
   const descGroup = document.createElement("div");
   descGroup.className = "cerebellum-input-group";
   const descLabel = document.createElement("label");
-  descLabel.innerText = "Description";
+  descLabel.innerText = "Notes / AI Context (Optional)";
   const descInput = document.createElement("textarea");
   descInput.className = "cerebellum-input";
   descInput.id = "cerebellum-desc-input";
-  descInput.placeholder = "Add a description (optional)";
+  descInput.placeholder = "Add key points, tags, or context...";
   descGroup.appendChild(descLabel);
   descGroup.appendChild(descInput);
 
@@ -64,50 +90,50 @@ function injectFloatingWidget() {
   submitBtn.className = "cerebellum-btn";
   submitBtn.id = "cerebellum-submit-btn";
   submitBtn.innerHTML = `
-    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M5 12h14"></path>
-      <path d="M12 5l7 7-7 7"></path>
+    <svg class="cerebellum-btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+      <polyline points="17 21 17 13 7 13 7 21"></polyline>
+      <polyline points="7 3 7 8 15 8"></polyline>
     </svg>
-    <span>Add to cerebrum</span>
+    <svg class="cerebellum-btn-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+      <path d="M12 2a10 10 0 0 1 10 10"></path>
+    </svg>
+    <span class="cerebellum-btn-text">Save to Cerebellum</span>
   `;
 
   submitBtn.addEventListener("click", () => {
     submitBtn.classList.add("loading");
-    submitBtn.querySelector("span").innerText = "Saving...";
-    submitBtn.querySelector(".btn-icon").innerHTML = `<circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path>`; // Change icon temporarily or let css spin it
-    
-    // Attempt to extract favicon
+    submitBtn.querySelector(".cerebellum-btn-text").innerText = "Saving...";
+
     const faviconLink = document.querySelector("link[rel~='icon']");
     const faviconUrl = faviconLink ? faviconLink.href : "";
-
     const urlToSave = linkInput.value || window.location.href;
-    const description = descInput.value || "";
+    const description = descInput.value.trim();
 
     chrome.runtime.sendMessage(
       {
         action: "saveLink",
         url: urlToSave,
-        title: document.title, // Title from page
-        description: description,
+        title: document.title || "Web Page",
         favicon: faviconUrl,
+        aiContext: description || undefined,
       },
       (response) => {
         submitBtn.classList.remove("loading");
         if (response && response.success) {
           submitBtn.classList.add("success");
-          submitBtn.querySelector("span").innerText = "Saved!";
-          submitBtn.querySelector(".btn-icon").innerHTML = `<polyline points="20 6 9 17 4 12"></polyline>`;
+          submitBtn.querySelector(".cerebellum-btn-text").innerText = "Saved to Cerebellum!";
           
           setTimeout(() => {
             submitBtn.classList.remove("success");
-            submitBtn.querySelector("span").innerText = "Add to cerebrum";
-            submitBtn.querySelector(".btn-icon").innerHTML = `<path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path>`;
-            descInput.value = ""; // Clear description
-          }, 2000);
+            submitBtn.querySelector(".cerebellum-btn-text").innerText = "Save to Cerebellum";
+            descInput.value = "";
+            container.classList.remove("open");
+          }, 1500);
         } else {
-          submitBtn.querySelector("span").innerText = "Add to cerebrum";
-          submitBtn.querySelector(".btn-icon").innerHTML = `<path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path>`;
-          alert("Failed to save to Cerebellum. Make sure the app is running on localhost:3000.");
+          submitBtn.querySelector(".cerebellum-btn-text").innerText = "Save to Cerebellum";
+          alert("Failed to save to Cerebellum. Make sure the Cerebellum web app is running.");
         }
       }
     );
@@ -125,6 +151,19 @@ function injectFloatingWidget() {
   container.appendChild(panel);
 
   document.body.appendChild(container);
+
+  // Close button listener
+  document.getElementById("cerebellum-close-panel").addEventListener("click", (e) => {
+    e.stopPropagation();
+    container.classList.remove("open");
+  });
+
+  // Escape key listener to close drawer
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && container.classList.contains("open")) {
+      container.classList.remove("open");
+    }
+  });
 }
 
 // Inject the widget

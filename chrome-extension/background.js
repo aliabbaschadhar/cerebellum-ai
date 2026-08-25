@@ -15,14 +15,19 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "saveLink") {
-    saveToCerebellum(request.url, request.title, request.favicon).then(success => {
+    const url = request.url || request.linkData?.url;
+    const title = request.title || request.linkData?.title;
+    const favicon = request.favicon || request.linkData?.favicon;
+    const aiContext = request.aiContext || request.linkData?.aiContext;
+    
+    saveToCerebellum(url, title, favicon, aiContext).then(success => {
       sendResponse({ success });
     });
     return true; // Keep the message channel open for the async response
   }
 });
 
-async function saveToCerebellum(url, title, favicon) {
+async function saveToCerebellum(url, title, favicon, aiContext) {
   if (!url) return false;
 
   try {
@@ -40,6 +45,7 @@ async function saveToCerebellum(url, title, favicon) {
       title: title || "",
       platform,
       favicon: favicon || null,
+      aiContext: aiContext || undefined,
     };
 
     console.log("Saving link to Cerebellum:", payload);

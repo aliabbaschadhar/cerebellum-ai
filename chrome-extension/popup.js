@@ -1,39 +1,94 @@
-document.getElementById("save-btn").addEventListener("click", async () => {
-  const statusEl = document.getElementById("status");
-  const btn = document.getElementById("save-btn");
-  
-  btn.textContent = "Saving...";
-  statusEl.textContent = "";
-  statusEl.className = "";
+let currentTab = null;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const titleEl = document.getElementById("tab-title");
+  const domainEl = document.getElementById("tab-domain");
+  const faviconEl = document.getElementById("tab-favicon");
+  const saveBtn = document.getElementById("save-btn");
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab) throw new Error("Could not get current tab");
-
-    chrome.runtime.sendMessage(
-      { action: "saveLink", url: tab.url, title: tab.title, favicon: tab.favIconUrl },
-      (response) => {
-        if (chrome.runtime.lastError) {
-          btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save to Cerebellum`;
-          statusEl.textContent = "Error: Context invalidated.";
-          statusEl.className = "error show";
-          return;
-        }
-        if (response && response.success) {
-          btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Saved!`;
-          statusEl.textContent = "Successfully saved.";
-          statusEl.className = "success show";
-          setTimeout(() => window.close(), 1500);
-        } else {
-          btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save to Cerebellum`;
-          statusEl.textContent = "Failed. App running on localhost:3000?";
-          statusEl.className = "error show";
-        }
+    if (tab) {
+      currentTab = tab;
+      titleEl.textContent = tab.title || "Untitled Page";
+      
+      try {
+        const urlObj = new URL(tab.url);
+        domainEl.textContent = urlObj.hostname.replace(/^www\./, "");
+      } catch (e) {
+        domainEl.textContent = tab.url || "Page URL";
       }
-    );
-  } catch (error) {
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save to Cerebellum`;
-    statusEl.textContent = "Error: " + error.message;
-    statusEl.className = "error show";
+
+      if (tab.favIconUrl && !tab.favIconUrl.startsWith("chrome://")) {
+        faviconEl.src = tab.favIconUrl;
+        faviconEl.style.display = "block";
+      }
+    }
+  } catch (err) {
+    console.error("Could not fetch active tab:", err);
+    titleEl.textContent = "Could not detect active tab";
+    domainEl.textContent = "Unknown";
   }
+
+  saveBtn.addEventListener("click", handleSave);
 });
+
+async function handleSave() {
+  const saveBtn = document.getElementById("save-btn");
+  const btnText = document.getElementById("btn-text");
+  const notesInput = document.getElementById("notes-input");
+  const statusEl = document.getElementById("status");
+
+  if (!currentTab || !currentTab.url) {
+    showStatus("Error: No active tab to save", "error");
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.classList.add("loading");
+  btnText.textContent = "Saving to Cerebellum...";
+  statusEl.className = "status-badge";
+
+  try {
+    const payload = {
+      action: "saveLink",
+      url: currentTab.url,
+      title: currentTab.title || "",
+      favicon: currentTab.favIconUrl || null,
+      aiContext: notesInput.value.trim() || undefined
+    };
+
+    chrome.runtime.sendMessage(payload, (response) => {
+      saveBtn.classList.remove("loading");
+
+      if (chrome.runtime.lastError) {
+        saveBtn.disabled = false;
+        btnText.textContent = "Save to Cerebellum";
+        showStatus("Extension context invalidated. Reload page.", "error");
+        return;
+      }
+
+      if (response && response.success) {
+        saveBtn.classList.add("success");
+        btnText.textContent = "Saved to Cerebellum!";
+        showStatus("✓ Successfully indexed into your second brain", "success");
+        setTimeout(() => window.close(), 1300);
+      } else {
+        saveBtn.disabled = false;
+        btnText.textContent = "Save to Cerebellum";
+        showStatus("Failed to save. Ensure Cerebellum is running.", "error");
+      }
+    });
+  } catch (error) {
+    saveBtn.classList.remove("loading");
+    saveBtn.disabled = false;
+    btnText.textContent = "Save to Cerebellum";
+    showStatus("Error: " + error.message, "error");
+  }
+}
+
+function showStatus(text, type) {
+  const statusEl = document.getElementById("status");
+  statusEl.textContent = text;
+  statusEl.className = `status-badge ${type} show`;
+}

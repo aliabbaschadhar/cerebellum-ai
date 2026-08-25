@@ -5,111 +5,322 @@
   <title>Cerebellum AI</title>
   <style>
     :root {
-      --bg: #0c0c0f;
-      --card: #16161a;
-      --border: rgba(255, 255, 255, 0.1);
-      --text: #e0e0e0;
-      --primary: #10b981;
-      --primary-hover: #059669;
+      --bg: #e0e5ec;
+      --surface: #e0e5ec;
+      --text: #1e2026;
+      --text-muted: #525866;
+      --primary: #c94045;
+      --primary-hover: #b8363b;
+      --primary-active: #9e2a2f;
+      --neu-shadow: 6px 6px 14px rgba(166, 174, 186, 0.45), -6px -6px 14px rgba(255, 255, 255, 0.85);
+      --neu-shadow-sm: 3px 3px 8px rgba(166, 174, 186, 0.35), -3px -3px 8px rgba(255, 255, 255, 0.8);
+      --neu-inset: inset 2px 2px 5px rgba(163, 177, 198, 0.45), inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+      --neu-border: rgba(0, 0, 0, 0.05);
+      --success: #10b981;
+      --error: #ba1a1a;
     }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", Roboto, Helvetica, Arial, sans-serif;
-      width: 280px;
-      padding: 0;
+
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Segoe UI", Roboto, sans-serif;
+      width: 320px;
       background-color: var(--bg);
       color: var(--text);
+      padding: 16px;
+      user-select: none;
     }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Header */
     .header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 2px 8px;
+      border-bottom: 1px solid rgba(166, 174, 186, 0.25);
+    }
+
+    .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: var(--card);
     }
-    .header svg {
+
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: var(--neu-shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: var(--primary);
     }
-    .header h2 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
+
+    .brand-text h1 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
       letter-spacing: -0.01em;
     }
-    .content {
-      padding: 24px 20px;
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .version-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 7px;
+      background: var(--surface);
+      box-shadow: var(--neu-inset);
+      border-radius: 20px;
+      color: var(--primary);
+    }
+
+    /* Preview Card */
+    .preview-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: var(--neu-shadow-sm);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 8px;
+      border: 1px solid var(--neu-border);
     }
-    p.desc {
-      margin: 0;
-      font-size: 13px;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.4;
-      text-align: center;
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    button {
+
+    .favicon-img {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: rgba(0,0,0,0.05);
+    }
+
+    .domain-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: lowercase;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+
+    /* Inputs */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .neu-input {
       width: 100%;
-      padding: 12px;
-      background-color: var(--primary);
-      color: #fff;
+      background: var(--surface);
+      border: 1px solid rgba(166, 174, 186, 0.2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text);
+      box-shadow: var(--neu-inset);
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+      resize: none;
+    }
+
+    .neu-input:focus {
+      border-color: rgba(201, 64, 69, 0.5);
+      box-shadow: var(--neu-inset), 0 0 0 2px rgba(201, 64, 69, 0.15);
+    }
+
+    .neu-input::placeholder {
+      color: #949ca8;
+    }
+
+    textarea.neu-input {
+      height: 60px;
+    }
+
+    /* Button */
+    .save-btn {
+      width: 100%;
+      padding: 11px 16px;
+      background: var(--primary);
+      color: #ffffff;
       border: none;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      font-weight: 500;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+      box-shadow: 4px 4px 10px rgba(201, 64, 69, 0.35), -2px -2px 6px rgba(255, 255, 255, 0.7);
+      transition: all 0.2s ease;
     }
-    button:hover {
-      background-color: var(--primary-hover);
+
+    .save-btn:hover {
+      background: var(--primary-hover);
       transform: translateY(-1px);
+      box-shadow: 5px 5px 14px rgba(201, 64, 69, 0.42), -3px -3px 8px rgba(255, 255, 255, 0.85);
     }
-    button:active {
+
+    .save-btn:active {
+      background: var(--primary-active);
       transform: translateY(1px);
+      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.25);
     }
-    #status {
-      font-size: 13px;
+
+    .save-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .save-btn.success {
+      background: var(--success);
+      box-shadow: 4px 4px 10px rgba(16, 185, 129, 0.35), -2px -2px 6px rgba(255, 255, 255, 0.7);
+    }
+
+    /* Spinner */
+    .spinner {
+      animation: spin 0.9s linear infinite;
+      display: none;
+    }
+
+    .save-btn.loading .spinner {
+      display: inline-block;
+    }
+
+    .save-btn.loading .btn-icon-normal {
+      display: none;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Status Alert */
+    .status-badge {
+      font-size: 11px;
+      font-weight: 500;
       text-align: center;
       min-height: 16px;
-      font-weight: 500;
+      border-radius: 6px;
+      padding: 4px 8px;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.25s ease;
     }
-    #status.show {
+
+    .status-badge.show {
       opacity: 1;
     }
-    .success { color: #10b981; }
-    .error { color: #ef4444; }
+
+    .status-badge.success {
+      color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .status-badge.error {
+      color: var(--error);
+      background: rgba(186, 26, 26, 0.1);
+    }
   </style>
 </head>
 <body>
-  <div class="header">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2a4 4 0 0 1 4 4v2h2.5A2.5 2.5 0 0 1 21 10.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-8A2.5 2.5 0 0 1 5.5 8H8V6a4 4 0 0 1 4-4z"></path>
-      <circle cx="12" cy="14" r="2"></circle>
-      <path d="M12 16v2"></path>
-    </svg>
-    <h2>Cerebellum AI</h2>
-  </div>
-  <div class="content">
-    <p class="desc">Save the current page or post directly to your knowledge base.</p>
-    <button id="save-btn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <div class="container">
+    <!-- Brand Header -->
+    <div class="header">
+      <div class="brand">
+        <div class="logo-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a4 4 0 0 1 4 4v2h2.5A2.5 2.5 0 0 1 21 10.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-8A2.5 2.5 0 0 1 5.5 8H8V6a4 4 0 0 1 4-4z"></path>
+            <circle cx="12" cy="14" r="2"></circle>
+            <path d="M12 16v2"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Cerebellum AI</h1>
+          <p>Second Brain Clip</p>
+        </div>
+      </div>
+      <span class="version-tag">PRO</span>
+    </div>
+
+    <!-- Active Page Preview Card -->
+    <div class="preview-card">
+      <div class="preview-header">
+        <img id="tab-favicon" class="favicon-img" src="" alt="" style="display:none;" />
+        <span id="tab-domain" class="domain-tag">Detecting page...</span>
+      </div>
+      <div id="tab-title" class="page-title">Loading current tab info...</div>
+    </div>
+
+    <!-- AI Context / Note Input -->
+    <div class="input-group">
+      <label class="input-label" for="notes-input">Add Notes / Context (Optional)</label>
+      <textarea id="notes-input" class="neu-input" placeholder="Why is this useful? Key takeaways..."></textarea>
+    </div>
+
+    <!-- Action Button -->
+    <button id="save-btn" class="save-btn">
+      <svg class="btn-icon-normal" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
         <polyline points="17 21 17 13 7 13 7 21"></polyline>
         <polyline points="7 3 7 8 15 8"></polyline>
       </svg>
-      Save to Cerebellum
+      <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+        <path d="M12 2a10 10 0 0 1 10 10"></path>
+      </svg>
+      <span id="btn-text">Save to Cerebellum</span>
     </button>
-    <div id="status"></div>
+
+    <!-- Status Notice -->
+    <div id="status" class="status-badge"></div>
   </div>
+
   <script src="popup.js"></script>
 </body>
 </html>

@@ -33,8 +33,8 @@ function injectIntoXPosts() {
     
     // Hover effect for X
     cerebellumBtn.addEventListener("mouseenter", () => {
-      cerebellumBtn.style.color = "#10b981"; // Cerebellum green
-      cerebellumBtn.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+      cerebellumBtn.style.color = "#c94045"; // Cerebellum coral
+      cerebellumBtn.style.backgroundColor = "rgba(201, 64, 69, 0.12)";
       cerebellumBtn.style.borderRadius = "9999px";
     });
     cerebellumBtn.addEventListener("mouseleave", () => {

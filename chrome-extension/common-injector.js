@@ -1,17 +1,17 @@
-// common-injector.js
+// common-injector.js - Injected button helper & toast manager for social platforms
 
 function createCerebellumButton(postUrl, platform) {
   const wrapper = document.createElement("div");
-  wrapper.style.display = "flex";
+  wrapper.style.display = "inline-flex";
   wrapper.style.alignItems = "center";
   wrapper.style.justifyContent = "center";
-  wrapper.style.padding = "8px";
+  wrapper.style.padding = "6px";
   wrapper.style.cursor = "pointer";
   wrapper.className = "cerebellum-btn-wrapper";
+  wrapper.title = "Save to Cerebellum AI";
 
-  // Use currentColor but respect inherit if passed, otherwise default to a nice neutral
   const svgIcon = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cerebellum-icon" style="transition: all 0.2s ease; width: 1.25em; height: 1.25em;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cerebellum-icon" style="transition: all 0.2s ease;">
       <path d="M12 2a4 4 0 0 1 4 4v2h2.5A2.5 2.5 0 0 1 21 10.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-8A2.5 2.5 0 0 1 5.5 8H8V6a4 4 0 0 1 4-4z"></path>
       <circle cx="12" cy="14" r="2"></circle>
       <path d="M12 16v2"></path>
@@ -25,10 +25,10 @@ function createCerebellumButton(postUrl, platform) {
     e.stopPropagation();
     
     const icon = wrapper.querySelector("svg");
-    icon.style.stroke = "#10b981"; 
-    icon.style.transform = "scale(1.1)";
+    icon.style.stroke = "#c94045"; 
+    icon.style.transform = "scale(1.15)";
     
-    showToast(`Saving ${platform} post...`);
+    showToast(`Saving ${platform} post to Cerebellum...`, "info");
 
     chrome.runtime.sendMessage(
       {
@@ -39,22 +39,16 @@ function createCerebellumButton(postUrl, platform) {
         platform: platform === 'x' ? 'twitter' : platform
       },
       (response) => {
-        setTimeout(() => { icon.style.transform = "scale(1)"; }, 200);
+        setTimeout(() => { icon.style.transform = "scale(1)"; }, 250);
         if (response && response.success) {
-          showToast("Saved to Cerebellum!", "success");
+          icon.style.stroke = "#10b981";
+          showToast("✓ Saved to Cerebellum!", "success");
         } else {
-          icon.style.stroke = "#ef4444";
-          showToast("Failed to save post.", "error");
+          icon.style.stroke = "#ba1a1a";
+          showToast("Failed to save post. Check app status.", "error");
         }
       }
     );
-  });
-
-  wrapper.addEventListener("mouseenter", () => {
-    wrapper.style.opacity = "0.7";
-  });
-  wrapper.addEventListener("mouseleave", () => {
-    wrapper.style.opacity = "1";
   });
 
   return wrapper;
@@ -69,9 +63,10 @@ function showToast(message, type = "info") {
   }
   
   toast.textContent = message;
-  toast.className = `cerebellum-toast show ${type}`;
+  toast.className = `cerebellum-toast ${type} show`;
   
-  setTimeout(() => {
-    toast.className = toast.className.replace("show", "");
-  }, 3000);
+  clearTimeout(window.__cerebellumToastTimer);
+  window.__cerebellumToastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2800);
 }

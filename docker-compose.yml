@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: cerebellum-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cerebellum_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - cerebellum_pgdata:/var/lib/postgresql
+
+volumes:
+  cerebellum_pgdata:
+
+
