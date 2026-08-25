@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Skills
 
-Always check the skills directory (located at `~/.gemini/antigravity/skills`) for a folder matching the domain of the current query or task. If a matching skill folder is found:
+Always check the skills directories (`.agents/skills/` in the workspace or `~/.gemini/config/skills/` globally) for a folder matching the domain of the current query or task. If a matching skill folder is found:
 
 1. Locate and read its `SKILL.md` file using the `view_file` tool to understand the skill's specific guidelines and instructions.
 2. Follow the detailed instructions outlined in that skill file to answer the query or execute the task.
