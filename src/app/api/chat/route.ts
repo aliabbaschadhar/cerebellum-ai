@@ -2,14 +2,39 @@ import { streamText, convertToModelMessages } from "ai";
 import { digitalOceanGenAI, generateEmbedding } from "@/lib/ai";
 import { prisma } from "@/lib/prisma";
 
+interface MessagePart {
+  type: string;
+  text?: string;
+}
+
+interface MessageInput {
+  id?: string;
+  role?: string;
+  content?: string;
+  parts?: MessagePart[];
+}
+
+interface MatchedLink {
+  id: string;
+  url: string;
+  platform: string;
+  title: string | null;
+  description: string | null;
+  image: string | null;
+  favicon: string | null;
+  siteName: string | null;
+  aiContext: string | null;
+  distance: number;
+}
+
 // Helper to extract text content from UIMessage parts
-const getMessageText = (message: any) => {
+const getMessageText = (message: MessageInput | null | undefined) => {
   if (!message) return "";
   if (typeof message.content === "string") return message.content;
   if (Array.isArray(message.parts)) {
     return message.parts
-      .filter((p: any) => p.type === "text")
-      .map((p: any) => p.text)
+      .filter((p: MessagePart) => p.type === "text")
+      .map((p: MessagePart) => p.text || "")
       .join("");
   }
   return "";
@@ -71,7 +96,7 @@ export async function POST(req: Request) {
 
     // 3. Generate embedding and perform similarity search (if not search context and memories not skipped)
     let vector: number[] = [];
-    let matchedLinks: any[] = [];
+    let matchedLinks: MatchedLink[] = [];
     let noMemories = false;
     const skipMemories = process.env.SKIP_MEMORIES === "true";
 
@@ -93,7 +118,7 @@ export async function POST(req: Request) {
             const queryVectorString = `[${vector.join(",")}]`;
 
             // Raw SQL query to fetch closest links by cosine distance
-            matchedLinks = await prisma.$queryRawUnsafe(`
+            matchedLinks = await prisma.$queryRawUnsafe<MatchedLink[]>(`
               SELECT l.id, l.url, l.platform, l.title, l.description, l.image, l.favicon, l."siteName", l."aiContext",
                      (le.vector <=> CAST($1 AS vector)) as distance
               FROM "Link" l
@@ -171,7 +196,7 @@ where id1, id2, etc. are the exact IDs of the matched memories from the context.
 
     const chatModel = process.env.DO_CHAT_MODEL || "deepseek-4-flash";
     // Preprocess messages to ensure convertToModelMessages doesn't crash on standard formats
-    const uiMessages = messages.map((m: any) => {
+    const uiMessages = messages.map((m: MessageInput) => {
       if (!m.parts && typeof m.content === "string") {
         return {
           ...m,

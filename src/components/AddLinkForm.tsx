@@ -56,21 +56,21 @@ export default function AddLinkForm({ onAdded }: Props) {
       <form onSubmit={handleSubmit} className="relative flex flex-col gap-4">
         {/* Main URL Input Container */}
         <div
-          className={`flex items-center gap-3 rounded-full px-5 py-3.5 transition-all duration-300 border ${
+          className={`flex items-center gap-3 rounded-full px-5 py-3.5 transition-all duration-300 ${
             status === "error"
-              ? "border-error/50 bg-[#ffdad6]/20"
-              : "border-transparent bg-[#FFF2D0]/40 focus-within:bg-white/80 focus-within:border-[#E36A6A] focus-within:shadow-[0_0_15px_rgba(227,106,106,0.25)] focus-within:backdrop-blur-md"
+              ? "border border-error/50 neu-sunken"
+              : "neu-sunken focus-within:border-primary/40"
           }`}
         >
           {/* URL icon */}
           <svg
             className={`shrink-0 w-5 h-5 transition-colors duration-300 ${
-              status === "error" ? "text-error" : "text-[#8a7170] focus-within:text-[#a0383b]"
+              status === "error" ? "text-error" : "text-primary"
             }`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.8"
+            strokeWidth="2"
           >
             <path
               d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"
@@ -91,7 +91,7 @@ export default function AddLinkForm({ onAdded }: Props) {
               if (status === "error") setStatus("idle");
             }}
             placeholder="Paste any URL — youtube.com, x.com, github.com…"
-            className="flex-1 bg-transparent text-sm text-text-rich placeholder:text-[#8a7170]/60 outline-none min-w-0 font-medium"
+            className="flex-1 bg-transparent text-sm text-text-rich dark:text-white placeholder:text-on-surface-variant/60 dark:placeholder:text-white/40 outline-none min-w-0 font-medium"
             disabled={isLoading}
             autoFocus
           />
@@ -99,10 +99,9 @@ export default function AddLinkForm({ onAdded }: Props) {
           <button
             type="submit"
             disabled={isLoading || !url.trim()}
-            className="shrink-0 h-10 px-6 rounded-full bg-gradient-to-r from-[#E36A6A] to-[#FFB2B2] text-white text-sm font-semibold
-              hover:shadow-[0_0_15px_rgba(227,106,106,0.4)] active:scale-95 transition-all duration-200
-              disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100
-              flex items-center gap-2"
+            className="shrink-0 h-10 px-6 rounded-full neu-button-primary text-white text-sm font-bold
+              disabled:opacity-40 disabled:cursor-not-allowed
+              flex items-center gap-2 cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -140,11 +139,11 @@ export default function AddLinkForm({ onAdded }: Props) {
             onChange={(e) => setAiContext(e.target.value)}
             placeholder="Add optional context/tags for your Second Brain..."
             rows={2}
-            className="w-full rounded-2xl border border-transparent bg-[#FFF2D0]/40 px-5 py-3.5 text-sm text-text-rich placeholder:text-[#8a7170]/60 outline-none transition-all duration-300 focus:bg-white/80 focus:border-[#E36A6A] focus:shadow-[0_0_15px_rgba(227,106,106,0.25)] focus:backdrop-blur-md resize-none font-medium"
+            className="w-full rounded-2xl neu-sunken px-5 py-3.5 text-sm text-text-rich dark:text-white placeholder:text-on-surface-variant/60 dark:placeholder:text-white/40 outline-none transition-all duration-300 focus:border-primary/40 resize-none font-medium"
             disabled={isLoading}
           />
-          <p className="text-xs text-[#8a7170] pl-1 font-medium">
-            * This helps Cerebellum AI search and retrieve this link using natural language query.
+          <p className="text-xs text-on-surface-variant dark:text-white/60 pl-2 font-medium">
+            * Helps Cerebellum AI search and retrieve this link using natural language.
           </p>
         </div>
       </form>

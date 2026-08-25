@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   title: "Cerebellum AI — Save anything from the web",
   description:
     "A unified link-saving tool that gives you rich previews for YouTube, X, GitHub, Reddit, and any article.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 "use client";
 
-import type { LinkData } from "@/app/page";
+import type { LinkData } from "@/types";
 import GenericCard from "./GenericCard";
 
 interface Props {
@@ -15,7 +15,7 @@ export default function InstagramCard({ link }: Props) {
     if (match) {
       embedUrl = `https://www.instagram.com/${match[1]}/${match[2]}/embed/`;
     }
-  } catch (e) {}
+  } catch {}
   return (
     <div className="flex flex-col h-full">
       {embedUrl ? (

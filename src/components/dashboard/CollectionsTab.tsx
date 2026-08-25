@@ -1,15 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { LinkData } from "@/app/page";
+import type { CollectionsTabProps } from "@/types";
+import { COLLECTION_SOURCE_TABS } from "@/lib/dashboardData";
 import LinkCard from "@/components/LinkCard";
 import { AVAILABLE_TAGS, getLinkTags, type FolderType } from "@/lib/tagUtils";
-
-interface CollectionsTabProps {
-  links: LinkData[];
-  onDeleted: (id: string) => void;
-  isPending: boolean;
-}
 
 export default function CollectionsTab({
   links,
@@ -52,27 +47,27 @@ export default function CollectionsTab({
     });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       {/* Left Folder Directory List */}
-      <div className="lg:col-span-4 bg-[#f7f3e9]/40 dark:bg-white/5 border border-[#ddc0be]/40 dark:border-white/10 rounded-2xl p-5 flex flex-col gap-4">
+      <div className="lg:col-span-4 neu-card-static rounded-3xl p-5 flex flex-col gap-4 h-fit">
         <div>
-          <h3 className="text-xs font-bold text-[#8a7170] uppercase tracking-wider pl-1">
+          <h3 className="text-xs font-bold text-text-rich dark:text-white uppercase tracking-wider pl-1">
             Directories
           </h3>
-          <p className="text-[10px] text-[#8a7170]/80 pl-1 mt-0.5">
+          <p className="text-[10px] text-on-surface-variant dark:text-white/60 pl-1 mt-0.5 font-medium">
             Organize saved assets into namespaces.
           </p>
         </div>
 
-        <div className="flex flex-col gap-1 max-h-[500px] overflow-y-auto pr-1">
+        <div className="flex flex-col gap-2">
           {(["All", "Inbox", ...AVAILABLE_TAGS] as const).map((folder) => (
             <button
               key={folder}
               onClick={() => setSelectedFolder(folder)}
-              className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold text-left transition-all flex items-center justify-between border ${
+              className={`w-full px-4 py-3 rounded-2xl text-xs font-bold text-left transition-all flex items-center justify-between cursor-pointer ${
                 selectedFolder === folder
-                  ? "bg-[#1c1c16] text-white dark:bg-white dark:text-[#1c1c16] border-transparent shadow-sm"
-                  : "bg-transparent text-[#564241] dark:text-[#8a7170] border-transparent hover:bg-white/80 dark:hover:bg-white/5"
+                  ? "neu-sunken text-primary dark:text-[#ffb4b4] border border-primary/30"
+                  : "neu-raised-sm text-on-surface-variant dark:text-white/80 hover:neu-sunken"
               }`}
             >
               <span className="flex items-center gap-2">
@@ -81,7 +76,7 @@ export default function CollectionsTab({
                   style={{
                     backgroundColor:
                       folder === "All"
-                        ? "#a0383b"
+                        ? "var(--color-primary)"
                         : folder === "Inbox"
                           ? "#8a7170"
                           : folder === "Neuroscience"
@@ -105,33 +100,26 @@ export default function CollectionsTab({
 
       {/* Right Cards View with category filters */}
       <div className="lg:col-span-8 flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between border-b border-[#ddc0be]/25 dark:border-white/10 pb-4 gap-4">
+        <div className="flex flex-wrap items-center justify-between border-b border-outline-variant/20 dark:border-white/10 pb-4 gap-4">
           <div>
             <h2 className="text-lg font-bold font-display text-text-rich dark:text-white">
               Collection: {selectedFolder}
             </h2>
-            <span className="text-[10.5px] font-bold text-[#8a7170]">
+            <span className="text-[10.5px] font-bold text-on-surface-variant dark:text-white/60">
               {filteredLinks.length} filtered items
             </span>
           </div>
 
           {/* Source tabs filter */}
           <div className="flex flex-wrap gap-1.5">
-            {[
-              { id: null, label: "All Sources" },
-              { id: "youtube", label: "YouTube" },
-              { id: "twitter", label: "Twitter / X" },
-              { id: "instagram", label: "Instagram" },
-              { id: "tiktok", label: "TikTok" },
-              { id: "web", label: "Web / Article" },
-            ].map((item) => (
+            {COLLECTION_SOURCE_TABS.map((item) => (
               <button
                 key={item.id ?? "all"}
                 onClick={() => setSelectedPlatformFilter(item.id)}
-                className={`px-3 py-1.5 rounded-lg text-[10.5px] font-bold transition-all border ${
+                className={`px-3.5 py-1.5 rounded-full text-[10.5px] font-bold transition-all cursor-pointer ${
                   selectedPlatformFilter === item.id
-                    ? "bg-[#1c1c16] text-white dark:bg-white dark:text-[#1c1c16] border-transparent shadow-sm"
-                    : "bg-[#FFF2D0]/40 dark:bg-white/5 text-[#564241] dark:text-[#8a7170] border-[#ddc0be]/30 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/15"
+                    ? "neu-sunken text-primary dark:text-[#ffb4b4] border border-primary/30"
+                    : "neu-raised-sm text-on-surface-variant dark:text-white/80 hover:neu-sunken"
                 }`}
               >
                 {item.label}
@@ -142,13 +130,13 @@ export default function CollectionsTab({
 
         {/* Filtered Grid */}
         {filteredLinks.length === 0 ? (
-          <div className="text-center py-20 italic text-[#8a7170]/80">
+          <div className="text-center py-20 italic text-on-surface-variant/80 dark:text-white/50 neu-sunken p-8 rounded-3xl">
             No files located inside directory matching parameters.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filteredLinks.map((link) => (
-              <div key={link.id} className="scale-98">
+              <div key={link.id}>
                 <LinkCard
                   link={link}
                   onDeleted={onDeleted}

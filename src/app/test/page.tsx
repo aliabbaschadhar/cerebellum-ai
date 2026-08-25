@@ -17,15 +17,14 @@ import Link from "next/link";
 import { DefaultChatTransport } from "ai";
 
 export default function TestPage() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Initialize theme from localStorage/system setting
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const dark = savedTheme === "dark" || (!savedTheme && systemPrefersDark);
-    setIsDarkMode(dark);
-  }, []);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("theme");
+      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      return savedTheme === "dark" || (!savedTheme && systemPrefersDark);
+    }
+    return false;
+  });
 
   // Update theme class on root element
   useEffect(() => {
@@ -84,13 +83,13 @@ export default function TestPage() {
   };
 
   // Helper to extract text content from UIMessage parts
-  const getMessageText = (message: any) => {
+  const getMessageText = (message: { content?: string; parts?: Array<{ type: string; text?: string }> } | null | undefined) => {
     if (!message) return "";
     if (typeof message.content === "string" && message.content) return message.content;
     if (Array.isArray(message.parts)) {
       return message.parts
-        .filter((part: any) => part.type === "text")
-        .map((part: any) => part.text)
+        .filter((part: { type: string; text?: string }) => part.type === "text")
+        .map((part: { type: string; text?: string }) => part.text || "")
         .join("");
     }
     return "";

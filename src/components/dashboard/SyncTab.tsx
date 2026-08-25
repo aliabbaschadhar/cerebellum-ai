@@ -1,15 +1,10 @@
 "use client";
 
 import JSZip from "jszip";
-import type { LinkData } from "@/app/page";
+import type { SyncTabProps } from "@/types";
 import { getLinkTags } from "@/lib/tagUtils";
 
-interface SyncTabProps {
-  links: LinkData[];
-}
-
 export default function SyncTab({ links }: SyncTabProps) {
-  // ZIP Obsidian vault generation
   async function handleExportObsidian() {
     if (links.length === 0) return;
     const zip = new JSZip();
@@ -53,7 +48,6 @@ ${link.description ?? "No description available."}
     URL.revokeObjectURL(url);
   }
 
-  // JSON database exporter
   function handleDownloadDatabase() {
     const blob = new Blob([JSON.stringify(links, null, 2)], {
       type: "application/json",
@@ -72,18 +66,18 @@ ${link.description ?? "No description available."}
         <h1 className="text-2xl font-bold font-display text-text-rich dark:text-white">
           Sync & Export Settings
         </h1>
-        <p className="text-xs text-[#564241] dark:text-[#8a7170] font-medium">
+        <p className="text-xs text-on-surface-variant dark:text-white/70 font-medium">
           Configure local-first backup vectors and backup export nodes.
         </p>
       </div>
 
       {/* Obsidian sync */}
-      <div className="bg-white/60 dark:bg-[#1c1c16]/50 border border-[#ddc0be]/40 dark:border-white/10 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-sm">
+      <div className="neu-card rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex-1">
           <h3 className="text-sm font-bold text-text-rich dark:text-white">
             Obsidian Vault Integration
           </h3>
-          <p className="text-xs text-[#564241] dark:text-[#8a7170] mt-1 font-medium leading-relaxed">
+          <p className="text-xs text-on-surface-variant dark:text-white/70 mt-1 font-medium leading-relaxed">
             Export all saved links, summaries, and archived texts as formatted
             markdown documents inside an Obsidian vault structure.
           </p>
@@ -91,7 +85,7 @@ ${link.description ?? "No description available."}
         <button
           onClick={handleExportObsidian}
           disabled={links.length === 0}
-          className="h-10.5 px-6 rounded-xl bg-[#1c1c16] dark:bg-white dark:text-[#1c1c16] text-white text-xs font-bold hover:opacity-90 transition-all shrink-0 disabled:opacity-40"
+          className="h-10.5 px-6 rounded-2xl neu-button-primary text-white text-xs font-bold shrink-0 disabled:opacity-40 cursor-pointer"
         >
           Export Vault as ZIP
         </button>
@@ -99,18 +93,18 @@ ${link.description ?? "No description available."}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Sync Schedule */}
-        <div className="bg-white/60 dark:bg-[#1c1c16]/50 border border-[#ddc0be]/40 dark:border-white/10 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-sm">
+        <div className="neu-card rounded-3xl p-6 flex flex-col justify-between gap-4">
           <div>
             <h3 className="text-sm font-bold text-text-rich dark:text-white">
               Sync Schedule
             </h3>
-            <p className="text-xs text-[#564241] dark:text-[#8a7170] mt-1 font-medium leading-relaxed">
+            <p className="text-xs text-on-surface-variant dark:text-white/70 mt-1 font-medium leading-relaxed">
               Local data is auto-persisted. Cloud backup sync is run on request.
             </p>
           </div>
-          <div className="flex items-center justify-between text-xs font-bold text-text-rich dark:text-white">
+          <div className="flex items-center justify-between text-xs font-bold text-text-rich dark:text-white pt-2">
             <span>Last Indexed Sync:</span>
-            <span className="text-emerald-600 dark:text-emerald-500 flex items-center gap-1.5">
+            <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 neu-raised-sm px-3 py-1 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Just now
             </span>
@@ -118,19 +112,19 @@ ${link.description ?? "No description available."}
         </div>
 
         {/* Raw Data Export */}
-        <div className="bg-white/60 dark:bg-[#1c1c16]/50 border border-[#ddc0be]/40 dark:border-white/10 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-sm">
+        <div className="neu-card rounded-3xl p-6 flex flex-col justify-between gap-4">
           <div>
             <h3 className="text-sm font-bold text-text-rich dark:text-white">
               Raw Data Export
             </h3>
-            <p className="text-xs text-[#564241] dark:text-[#8a7170] mt-1 font-medium leading-relaxed">
+            <p className="text-xs text-on-surface-variant dark:text-white/70 mt-1 font-medium leading-relaxed">
               Export full database representations in common developer schemas.
             </p>
           </div>
           <button
             onClick={handleDownloadDatabase}
             disabled={links.length === 0}
-            className="h-10.5 w-full rounded-xl border border-[#1c1c16] dark:border-white text-text-rich dark:text-white text-xs font-bold hover:bg-[#f1eee4]/40 dark:hover:bg-white/10 transition-colors disabled:opacity-40"
+            className="h-10.5 w-full rounded-2xl neu-button text-text-rich dark:text-white text-xs font-bold disabled:opacity-40 cursor-pointer"
           >
             Download database.json
           </button>

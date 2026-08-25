@@ -29,14 +29,13 @@ export default function GenericCard({ link }: Props) {
         {(link.siteName || link.favicon) && (
           <div className="flex items-center gap-2 mb-3 bg-white/80 dark:bg-white/5 w-fit px-2.5 py-1.5 rounded-md border border-[#ddc0be]/30 dark:border-white/10 backdrop-blur-md shadow-sm">
             {link.favicon && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={link.favicon}
                 alt=""
+                width={16}
+                height={16}
+                unoptimized
                 className="w-4 h-4 rounded-sm object-contain"
-                onError={(e) =>
-                  ((e.target as HTMLImageElement).style.display = "none")
-                }
               />
             )}
             <span className="text-[10px] font-bold text-[#8a7170] dark:text-white/60 tracking-wider uppercase">
